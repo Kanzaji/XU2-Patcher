@@ -1,0 +1,16 @@
+[
+	{
+		"modid": "xu2patcher",
+		"name": "XU2 Patcher",
+		"description": "This mod Patches Extra Utils 2 to fix bugs that weren't fixed / appeared after end of support for Extra Utilities 2.",
+		"version": "${version}",
+		"mcversion": "${mcversion}",
+		"credits": "Su5eD for IC2 Patcher, from which the patcher itself was taken.",
+		"authorList": ["Kanzaji"],
+		"logoFile": "",
+		"url": "https://github.com/Kanzaji/XU2-Patcher",
+		"updateUrl": "",
+		"parent": "",
+		"screenshots": []
+	}
+]
