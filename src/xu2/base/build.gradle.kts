@@ -37,7 +37,8 @@ val versionForgeFlower: String by project
 
 val XU2SourceURL:       String by project
 val XU2SourceZIP:       File = File(buildDir, "downloadSource/source.zip")
-val XU2SourceDirty:     File = File(buildDir, "unpackSource");
+val XU2SourceDirty:     File = File(buildDir, "unpackSource")
+val src:                File = File(projectDir, "src")
 //val decompiledJar: File = File(buildDir, "decompileIC2/output.jar")
 //val patchedJar: File = File(buildDir, "applyPatches/output.jar")
 //val processedJar: File = File(buildDir, "applyStyle/output.jar")
@@ -55,6 +56,9 @@ tasks {
         group = taskGroup
         src(XU2SourceURL)
         dest(XU2SourceZIP)
+        //TODO: Add a temp file with current url saved, so if it changes, it re-downloads the source
+        //A check of the folder name inside of source.zip might be a good idea*
+        overwrite(false)
     }
 
     register<Copy>("Unpack Source") {
@@ -64,20 +68,30 @@ tasks {
         into(XU2SourceDirty)
     }
 
+    val gradleScripts: List<String> = listOf("1.10.2/build.gradle", "1.11/build.gradle", "1.12/build.gradle")
     register<Copy>("Cleanup and Copy Source") {
         group = taskGroup;
         dependsOn("Unpack Source")
-        from(XU2SourceDirty.listFiles()?.single { it.isDirectory }?: throw IllegalStateException("Expected one subdirectory in $XU2SourceDirty"))
-        into(File(projectDir, "src"))
-    }
+        // Searching for the directory in XU2SourceDirty doesn't work unless Unpack Source was launched before.
+        // from(XU2SourceDirty.listFiles()?.single { it.isDirectory }?: throw IllegalStateException("Expected one subdirectory in $XU2SourceDirty"))
+        // So the only option I can see at the time of writing this is to get the folder name from the URL.
+        from(File(XU2SourceDirty,
+            XU2SourceURL
+                .removePrefix("https://github.com/rwtema/")
+                .replace("/archive/","-")
+                .removeSuffix(".zip")
+        ))
+        into(src)
 
-//    register<JarExec>("decompileIC2") {
-//        group = taskGroup
-//        tool.set("net.minecraftforge:forgeflower:$versionForgeFlower")
-////        val input = ic2.singleFile.absolutePath
-////        outputs.file(decompiledJar)
-////        args.set(listOf("-din=1", "-rbr=1", "-dgs=1", "-asc=1", "-rsy=1", "-iec=1", "-jvn=1", "-log=TRACE", input, decompiledJar.absolutePath))
-//    }
+        //TODO: Find a way to make this stop blocking this task from being UP-TO-DATE when nothing else changed.
+        doLast {
+            gradleScripts.forEach {
+                val file = File(src, it)
+                file.writeText(file.readText().replace("jcenter()", "mavenCentral()"))
+            }
+        }
+    }
+}
     
 //    register<ApplyAstyle>("applyStyle") {
 //        group = taskGroup
@@ -196,7 +210,7 @@ tasks {
 //    named("processResources") {
 //        dependsOn("extractResources")
 //    }
-}
+//}
 
 //reobf {
 //    create("jar") {
