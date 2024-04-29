@@ -170,6 +170,9 @@ reobf {
 //    }
 //}
 
+/**
+ * @author Su5eD (Taken from IC2-Patcher Project)
+ */
 fun getGitVersion(): String {
     val jgitver = GitVersionCalculator.location(rootDir)
             .setNonQualifierBranches("master")

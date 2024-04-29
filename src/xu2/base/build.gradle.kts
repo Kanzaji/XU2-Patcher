@@ -18,6 +18,7 @@ import java.util.zip.ZipOutputStream
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
+import org.gradle.launcher.daemon.configuration.DaemonBuildOptions.JavaHomeOption
 
 plugins {
     java
@@ -69,9 +70,10 @@ tasks {
     }
 
     val gradleScripts: List<String> = listOf("1.10.2/build.gradle", "1.11/build.gradle", "1.12/build.gradle")
-    register<Copy>("Cleanup and Copy Source") {
+    register<Copy>("Setup Source") {
         group = taskGroup;
         dependsOn("Unpack Source")
+//        dependsOn("Download Gradle 2.14.1")
         // Searching for the directory in XU2SourceDirty doesn't work unless Unpack Source was launched before.
         // from(XU2SourceDirty.listFiles()?.single { it.isDirectory }?: throw IllegalStateException("Expected one subdirectory in $XU2SourceDirty"))
         // So the only option I can see at the time of writing this is to get the folder name from the URL.
@@ -84,11 +86,25 @@ tasks {
         into(src)
 
         //TODO: Find a way to make this stop blocking this task from being UP-TO-DATE when nothing else changed.
+        // Fixes some deprecated stuff to make XU2 Build files work
         doLast {
             gradleScripts.forEach {
                 val file = File(src, it)
-                file.writeText(file.readText().replace("jcenter()", "mavenCentral()"))
+                file.writeText(file.readText()
+                    .replace("jcenter()", "mavenCentral()")
+                    .replace("http://", "https://")
+                    .replace("parseConfig(file('../1.10.2/private.properties'))", "parseConfig(file('../1.10.2/version.properties'))")
+                )
             }
+
+            // XU2 Source is cursed. I would prefer honestly decompiling the XU2 Jar lol
+            // Each module has its own gradle wrapper (different at that!), but the main project "linking" those together doesn't have one, yet it requires gradle 2.14 to work?
+            // Copying the bundled 3.0 wrapper to the XU2 Source, this makes it possible to execute stuff from XU2 Project.
+//            File(projectDir, "gradle-3.0-wrapper/gradle")        .copyRecursively(File(src, "gradle")   , true)
+//            File(projectDir, "gradle-3.0-wrapper/gradlew.bat")   .copyTo(File(src, "gradlew.bat")       , true)
+//            File(projectDir, "gradle-3.0-wrapper/gradlew")       .copyTo(File(src, "gradlew")           , true)
+
+            execSourceTask("--refresh-dependencies dependencies")
         }
     }
 }
@@ -240,6 +256,34 @@ dependencies {
 //    compileOnly(group = "com.mod-buildcraft", name = "buildcraft-lib", version = versionBuildCraft)
 //    compileOnly(group = "com.mod-buildcraft", name = "buildcraft-main", version = versionBuildCraft)
 //    ic2(group = "net.industrial-craft", name = "industrialcraft-2", version = "${versionIC2}-ex112", classifier = "dev")
+}
+
+/**
+ * Used to execute tasks with use of the Gradle Wrapper from the XU2 Project.
+ * Note: Yes I know this is cursed, Yes I tried a lot of stuff to make this work.
+ */
+fun execSourceTask(task: String) {
+    val os = System.getProperty("os.name").toLowerCase()
+    val javaHome = System.getProperty("java.home")
+
+    val process = if (os.contains("windows")) {
+        Runtime.getRuntime().exec("cmd /c set \"JAVA_HOME=$javaHome\" && ${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew.bat $task", null, src)
+    } else {
+        //TODO: Test if this works on SH / Linux
+        Runtime.getRuntime().exec("export JAVA_HOME=\"$javaHome\" && ${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew $task", null, src)
+    }
+
+    do {
+        Thread.sleep(50);
+        process.inputStream.bufferedReader().lines().forEach(System.out::println)
+        process.errorStream.bufferedReader().lines().forEach(System.out::println)
+    } while (process.isAlive)
+
+    val exitCode = process.exitValue();
+
+    println("Process ended with exit code: $exitCode")
+
+    if (exitCode != 0) throw IllegalStateException("Exit code different than 0! Something went wrong.")
 }
 
 //open class ApplyAstyle : DefaultTask() {
