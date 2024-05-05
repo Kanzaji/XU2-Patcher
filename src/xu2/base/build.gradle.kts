@@ -98,11 +98,9 @@ tasks {
             }
 
             // XU2 Source is cursed. I would prefer honestly decompiling the XU2 Jar lol
-            // Each module has its own gradle wrapper (different at that!), but the main project "linking" those together doesn't have one, yet it requires gradle 2.14 to work?
-            // Copying the bundled 3.0 wrapper to the XU2 Source, this makes it possible to execute stuff from XU2 Project.
-//            File(projectDir, "gradle-3.0-wrapper/gradle")        .copyRecursively(File(src, "gradle")   , true)
-//            File(projectDir, "gradle-3.0-wrapper/gradlew.bat")   .copyTo(File(src, "gradlew.bat")       , true)
-//            File(projectDir, "gradle-3.0-wrapper/gradlew")       .copyTo(File(src, "gradlew")           , true)
+            // Each module has its own gradle wrapper (different at that!), but the main project "linking" those together doesn't have one,
+            // yet it requires gradle 2.14 to work?
+            // Using own Gradle 3.0 wrapper to make everything work, use execSourceTask fun for command execution on the source code.
 
             execSourceTask("--refresh-dependencies dependencies")
         }
