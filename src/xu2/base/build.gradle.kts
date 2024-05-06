@@ -265,10 +265,10 @@ fun execSourceTask(task: String) {
     val javaHome = System.getProperty("java.home")
 
     val process = if (os.contains("windows")) {
-        Runtime.getRuntime().exec("cmd /c set \"JAVA_HOME=$javaHome\" && ${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew.bat $task", null, src)
+        Runtime.getRuntime().exec("cmd /c set \"JAVA_HOME=$javaHome\" && \"${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew.bat\" $task", null, src)
     } else {
         //TODO: Test if this works on SH / Linux
-        Runtime.getRuntime().exec("export JAVA_HOME=\"$javaHome\" && ${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew $task", null, src)
+        Runtime.getRuntime().exec("export JAVA_HOME=\"$javaHome\" && \"${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew\" $task", null, src)
     }
 
     do {
