@@ -329,3 +329,91 @@ fun execSourceTask(task: String) {
 //        out.close()
 //    }
 //}
+
+// Only here so source code is possible to edit from the main project view. For better compatibility, open the Source project separately.
+subprojects {
+    if (project.name != "Source") {
+        apply(plugin="java-library")
+        apply(plugin="idea")
+        apply(plugin="net.minecraftforge.gradle")
+
+        repositories {
+            maven { url = uri("https://files.minecraftforge.net/maven") }
+            maven { url = uri("https://maven.thiakil.com") }
+            maven { url = uri("https://dvs1.progwml6.com/files/maven") }
+            maven { url = uri("https://maven.blamejared.com") }
+        }
+
+        // Those dependencies are taken from the respective source subproject.
+        // Reference build.gradle files in those projects for more details
+        // Note: Including MC 1.12.2 here instead of proper versions due to FG5 not working with any other version for some reason?
+        if (project.name == "1.10.2") {
+            dependencies {
+                minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2860")
+                //minecraft(group = "net.minecraftforge", name = "forge", version = "1.10.2-12.18.3.2511")
+                compileOnly(group = "mezz.jei", name = "jei_1.10.2", version = "3.13.3.380")
+                compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.10.2-1.1.3.199")
+                compileOnly(group = "slimeknights", name = "TConstruct", version = "1.10.2-2.6.1.464")
+            }
+            minecraft {
+                mappings("snapshot", "20170624-1.12")
+            }
+            sourceSets {
+                main {
+                    java {
+                        srcDir("src/main/java")
+                        srcDir("src/compat/java")
+                        srcDir("src/compat111/java")
+                        srcDir ("src/api/java")
+                    }
+                    resources {
+                        srcDir ("src/main/resources")
+                        srcDir ("src/compat/resources")
+                    }
+                }
+            }
+        } else {
+            sourceSets {
+                main {
+                    java {
+                        srcDir("src/main/java")
+                        srcDir("../1.10.2/src/compat/java")
+                        srcDir("../1.10.2/src/compat111/java")
+                        srcDir ("../1.10.2/src/api/java")
+                    }
+                    resources {
+                        srcDir ("../1.10.2/src/main/resources")
+                        srcDir ("../1.10.2/src/compat/resources")
+                    }
+                }
+            }
+
+        }
+
+        if (project.name == "1.11") {
+            dependencies {
+                minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2860")
+                //minecraft(group = "net.minecraftforge", name = "forge", version = "1.11.2-13.20.1.2588")
+                compileOnly(group = "mezz.jei", name = "jei_1.11", version = "4.1.1.208")
+            }
+            minecraft {
+                mappings("snapshot", "20170624-1.12")
+            }
+        }
+
+        if (project.name == "1.12") {
+            dependencies {
+                //minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2769")
+                minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2860")
+                compileOnly(group = "CraftTweaker2", name = "CraftTweaker2-API", version = "4.1.9.6")
+                compileOnly(group = "mezz.jei", name = "jei_1.12.2", version = "4.12.1.217")
+                compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.12-1.3.1.22")
+                compileOnly(group = "slimeknights", name = "TConstruct", version = "1.12-2.7.2.508")
+                compileOnly(group = "com.azanor.baubles", name = "Baubles", version = "1.12-1.5.2")
+            }
+            minecraft {
+                mappings("snapshot", "20170624-1.12")
+            }
+        }
+    }
+}

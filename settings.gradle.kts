@@ -33,8 +33,18 @@ project(":XU2-Patched").projectDir = file("src/xu2/patched")
 
 
 // XU2-Projects
-// Only here so IDE will get that those are source files.
+// Only here, so the IDE will get that those are source files.
 // Tasks from those are in the wrapper project - XU2-Base and XU2-Patched respectively.
 
 include(":XU2-Base:Source")
-project(":XU2-Base:Source").projectDir = file("src/xu2/base/src")
+include(":XU2-Base:Source:1.10.2")
+include(":XU2-Base:Source:1.11")
+include(":XU2-Base:Source:1.12")
+val baseSource = File("src/xu2/base/src");
+project(":XU2-Base:Source").projectDir = baseSource
+project(":XU2-Base:Source:1.10.2").projectDir = File(baseSource, "1.10.2")
+project(":XU2-Base:Source:1.11").projectDir = File(baseSource, "1.11")
+project(":XU2-Base:Source:1.12").projectDir = File(baseSource, "1.12")
+project(":XU2-Base:Source:1.10.2").buildFileName = "null"
+project(":XU2-Base:Source:1.11").buildFileName = "null"
+project(":XU2-Base:Source:1.12").buildFileName = "null"
