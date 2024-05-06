@@ -48,3 +48,16 @@ project(":XU2-Base:Source:1.12").projectDir = File(baseSource, "1.12")
 project(":XU2-Base:Source:1.10.2").buildFileName = "null"
 project(":XU2-Base:Source:1.11").buildFileName = "null"
 project(":XU2-Base:Source:1.12").buildFileName = "null"
+
+include(":XU2-Patched:Source")
+include(":XU2-Patched:Source:1.10.2")
+include(":XU2-Patched:Source:1.11")
+include(":XU2-Patched:Source:1.12")
+val patchedSource = File("src/xu2/patched/src");
+project(":XU2-Patched:Source").projectDir = patchedSource
+project(":XU2-Patched:Source:1.10.2").projectDir = File(patchedSource, "1.10.2")
+project(":XU2-Patched:Source:1.11").projectDir = File(patchedSource, "1.11")
+project(":XU2-Patched:Source:1.12").projectDir = File(patchedSource, "1.12")
+project(":XU2-Patched:Source:1.10.2").buildFileName = "null"
+project(":XU2-Patched:Source:1.11").buildFileName = "null"
+project(":XU2-Patched:Source:1.12").buildFileName = "null"

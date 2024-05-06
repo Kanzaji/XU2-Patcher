@@ -1,0 +1,7 @@
+--- a/com/rwtema/extrautils2/gui/backend/DynamicContainer.java
++++ b/com/rwtema/extrautils2/gui/backend/DynamicContainer.java
+@@ -673,4 +673,3 @@
+ 
+ 
+ }
+-

@@ -1,0 +1,11 @@
+--- a/com/rwtema/extrautils2/crafting/CraftingHelper.java
++++ b/com/rwtema/extrautils2/crafting/CraftingHelper.java
+@@ -26,7 +26,7 @@
+ import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPED;
+ import static net.minecraftforge.oredict.RecipeSorter.Category.SHAPELESS;
+ 
+-// đź›  Crafting methods đź› 
++// Ä‘Ĺşâ€şÂ  Crafting methods Ä‘Ĺşâ€şÂ 
+ public class CraftingHelper {
+ 	public final static ThreadLocal<Collection<? super IRecipe>> recipeCallback = new ThreadLocal<>();
+ 	private final static Set<Class<? extends IRecipe>> registeredRecipes = new HashSet<>();

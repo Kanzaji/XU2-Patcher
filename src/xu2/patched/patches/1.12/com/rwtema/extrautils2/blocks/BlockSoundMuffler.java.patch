@@ -1,0 +1,11 @@
+--- a/com/rwtema/extrautils2/blocks/BlockSoundMuffler.java
++++ b/com/rwtema/extrautils2/blocks/BlockSoundMuffler.java
+@@ -23,7 +23,7 @@
+ import javax.annotation.Nonnull;
+ import java.util.List;
+ 
+-// đź”‡ Sound Muffler đź”‡
++// Ä‘Ĺşâ€ťâ€ˇ Sound Muffler Ä‘Ĺşâ€ťâ€ˇ
+ public class BlockSoundMuffler extends XUBlockFull {
+ 	public BlockSoundMuffler() {
+ 		super(Material.CLOTH);

@@ -1,0 +1,7 @@
+--- a/com/rwtema/extrautils2/network/PacketHandlerClient.java
++++ b/com/rwtema/extrautils2/network/PacketHandlerClient.java
+@@ -32,4 +32,3 @@
+ 
+ 	}
+ }
+-

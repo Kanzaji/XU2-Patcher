@@ -1,0 +1,11 @@
+--- a/com/rwtema/extrautils2/utils/datastructures/AltStackStorage.java
++++ b/com/rwtema/extrautils2/utils/datastructures/AltStackStorage.java
+@@ -11,7 +11,7 @@
+ import javax.annotation.Nullable;
+ import java.io.IOException;
+ 
+-// đźšł No Bicycles allowed đźšł
++// Ä‘ĹşĹˇĹ‚ No Bicycles allowed Ä‘ĹşĹˇĹ‚
+ public class AltStackStorage {
+ 	static final byte FLAG_HASMETA = 1;
+ 	static final byte FLAG_HASNBT = 2;

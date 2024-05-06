@@ -11,7 +11,7 @@ java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 
 val mappingsChannel:    String by project
 val mappingsVersion:    String by project
-val taskGroup:          String = "xu2 patcher | base"
+val taskGroup:          String = "xu2 patcher ~ base"
 val versionJEI:         String by project
 val versionForge:       String by project
 val versionForgeFlower: String by project
@@ -40,7 +40,7 @@ tasks {
     }
 
     val gradleScripts: List<String> = listOf("1.10.2/build.gradle", "1.11/build.gradle", "1.12/build.gradle")
-    register<Copy>("Setup Source") {
+    register<Copy>("Setup Base Source") {
         group = taskGroup;
         dependsOn("Unpack Source")
 
@@ -71,27 +71,85 @@ tasks {
 
     register<Copy>("Add Gradle to Source") {
         group = taskGroup
-        if (!srcExists()) dependsOn("Setup Source")
+        if (!srcExists()) dependsOn("Setup Base Source")
         from (File(projectDir, "../gradle-3.0-wrapper"))
         into(src)
     }
 
-    register("Build 1.12") {
+    // Jar Generation
+    register("Build ~ 1.12 (Base)") {
         group = taskGroup
-        if (!srcExists()) dependsOn("Setup Source")
+        if (!srcExists()) dependsOn("Setup Base Source")
         doFirst { buildSource("1.12") }
     }
 
-    register<Copy>("Build 1.11") {
+    register<Copy>("Build ~ 1.11 (Base)") {
         group = taskGroup
-        if (!srcExists()) dependsOn("Setup Source")
+        if (!srcExists()) dependsOn("Setup Base Source")
         doFirst { buildSource("1.11") }
     }
 
-    register<Copy>("Build 1.10") {
+    register<Copy>("Build ~ 1.10 (Base)") {
+        group = taskGroup
+        if (!srcExists()) dependsOn("Setup Base Source")
+        doFirst { buildSource("1.10.2") }
+    }
+
+    // Source Jar Generation
+    register<Jar>("Source Jar ~ Full (Base)") {
+        group = taskGroup
+        description = "Used to package all versions of the mod into a single jar, for Patching the Patched Project. Should not be used to generate binary patches"
+        if (!srcExists()) dependsOn("Setup Base Source")
+        archiveClassifier.set("sources")
+        from(src) { include("**/*.java") }
+    }
+
+    register<Jar>("Source Jar ~ 1.12 (Base)") {
         group = taskGroup
         if (!srcExists()) dependsOn("Setup Source")
-        doFirst { buildSource("1.10.2") }
+        archiveClassifier.set("sources")
+        archiveBaseName.set("XU2-Base-1.12")
+        from(src) {
+            include("1.10.2/src/main/java/**")
+            include("1.12/src/main/java/**")
+            eachFile {
+                // A bit crude, but I don't have any other ideas :P
+                // It does result in empty folders, but those *shouldn't* be a problem.
+                this.path = this.path
+                    .replaceFirst("1.10.2/src/main/java/", "")
+                    .replaceFirst("1.12/src/main/java/", "")
+            }
+        }
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
+    register<Jar>("Source Jar ~ 1.11 (Base)") {
+        group = taskGroup
+        if (!srcExists()) dependsOn("Setup Source")
+        archiveClassifier.set("sources")
+        archiveBaseName.set("XU2-Base-1.11")
+        from(src) {
+            include("1.10.2/src/main/java/**")
+            include("1.10.2/src/compat111/java/**")
+            include("1.11/src/main/java/**")
+            eachFile {
+                // A bit crude, but I don't have any other ideas :P
+                // It does result in empty folders, but those *shouldn't* be a problem.
+                this.path = this.path
+                    .replaceFirst("1.10.2/src/main/java/", "")
+                    .replaceFirst("1.10.2/src/compat111/java/", "")
+                    .replaceFirst("1.11/src/main/java/", "")
+            }
+        }
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
+    register<Jar>("Source Jar ~ 1.10 (Base)") {
+        group = taskGroup
+        if (!srcExists()) dependsOn("Setup Source")
+        archiveClassifier.set("sources")
+        archiveBaseName.set("XU2-Base-1.10")
+        from(project("Source:1.10.2").sourceSets.main.get().allJava)
     }
 }
 
@@ -190,9 +248,7 @@ subprojects {
                 compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.10.2-1.1.3.199")
                 compileOnly(group = "slimeknights", name = "TConstruct", version = "1.10.2-2.6.1.464")
             }
-            minecraft {
-                mappings("snapshot", "20170624-1.12")
-            }
+            minecraft { mappings("snapshot", "20170624-1.12") }
             sourceSets {
                 main {
                     java {
@@ -207,22 +263,6 @@ subprojects {
                     }
                 }
             }
-        } else {
-            sourceSets {
-                main {
-                    java {
-                        srcDir("src/main/java")
-                        srcDir("../1.10.2/src/compat/java")
-                        srcDir("../1.10.2/src/compat111/java")
-                        srcDir ("../1.10.2/src/api/java")
-                    }
-                    resources {
-                        srcDir ("../1.10.2/src/main/resources")
-                        srcDir ("../1.10.2/src/compat/resources")
-                    }
-                }
-            }
-
         }
 
         if (project.name == "1.11") {
@@ -230,10 +270,10 @@ subprojects {
                 minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2860")
                 //minecraft(group = "net.minecraftforge", name = "forge", version = "1.11.2-13.20.1.2588")
                 compileOnly(group = "mezz.jei", name = "jei_1.11", version = "4.1.1.208")
+                parent?.let { compileOnly(it.project("1.10.2")) }
             }
-            minecraft {
-                mappings("snapshot", "20170624-1.12")
-            }
+            minecraft { mappings("snapshot", "20170624-1.12") }
+            sourceSets { main { java { srcDir("src/main/java") } } }
         }
 
         if (project.name == "1.12") {
@@ -245,10 +285,10 @@ subprojects {
                 compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.12-1.3.1.22")
                 compileOnly(group = "slimeknights", name = "TConstruct", version = "1.12-2.7.2.508")
                 compileOnly(group = "com.azanor.baubles", name = "Baubles", version = "1.12-1.5.2")
+                parent?.let { compileOnly(it.project("1.10.2")) }
             }
-            minecraft {
-                mappings("snapshot", "20170624-1.12")
-            }
+            minecraft { mappings("snapshot", "20170624-1.12") }
+            sourceSets { main { java { srcDir("src/main/java") } } }
         }
     }
 }
