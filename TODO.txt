@@ -1,7 +1,0 @@
-TODO:
-- Add a downloading task of the UX2 Source
-- Find a way to use already existing repo and gradle files, instead of compiling the mod myself lol
-- setup patcher to patch the second github repo
-- if base is not necessary (aka it compiles without changes), remove it.
-- remove old IC2 Stuff
-- make the patcher compile and work XD

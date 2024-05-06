@@ -61,3 +61,9 @@ project(":XU2-Patched:Source:1.12").projectDir = File(patchedSource, "1.12")
 project(":XU2-Patched:Source:1.10.2").buildFileName = "null"
 project(":XU2-Patched:Source:1.11").buildFileName = "null"
 project(":XU2-Patched:Source:1.12").buildFileName = "null"
+
+//TODO:
+// - Fix some chars not being correctly saved in patched version.
+// - Finish up Bin Patches Generation
+// - Add Dev Jar generation
+// - Client Runs on the patcher? Do I need to? Client runs should work on the Patch project itself.
