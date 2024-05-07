@@ -1,7 +1,0 @@
---- a/com/rwtema/extrautils2/api/machine/XUMachineFurnace.java
-+++ b/com/rwtema/extrautils2/api/machine/XUMachineFurnace.java
-@@ -19,4 +19,3 @@
- 		INSTANCE.recipes_registry.addRecipe(recipeBuilder.build());
- 	}
- }
--

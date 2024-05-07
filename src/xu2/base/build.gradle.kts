@@ -1,4 +1,5 @@
 import de.undercouch.gradle.tasks.download.Download
+import org.gradle.internal.impldep.org.bouncycastle.util.encoders.UTF8
 
 plugins {
     java
@@ -52,8 +53,8 @@ tasks {
         ))
         into(src)
 
-        // Fixes some deprecated stuff to make XU2 Build files work
         doLast {
+            // Fixes some deprecated stuff to make XU2 Build files work
             gradleScripts.forEach {
                 val file = File(src, it)
                 file.writeText(file.readText()
@@ -66,6 +67,15 @@ tasks {
             // Using own Gradle 3.0 wrapper to make everything work, as XU2 project is cursed in structure,
             // use execSourceTask fun for command execution on the source code.
             execSourceTask("--refresh-dependencies dependencies")
+
+            // Strips new lines at the end of the source files, as those cause random patches to generate.
+            fileTree(src) {
+                include("**/*.java")
+                forEach { file ->
+                    val content = file.readText(Charsets.UTF_8)
+                    if (content.endsWith("\n")) file.writeText(content.removeSuffix("\n"))
+                }
+            }
         }
     }
 
@@ -83,13 +93,13 @@ tasks {
         doFirst { buildSource("1.12") }
     }
 
-    register<Copy>("Build ~ 1.11 (Base)") {
+    register("Build ~ 1.11 (Base)") {
         group = taskGroup
         if (!srcExists()) dependsOn("Setup Base Source")
         doFirst { buildSource("1.11") }
     }
 
-    register<Copy>("Build ~ 1.10 (Base)") {
+    register("Build ~ 1.10 (Base)") {
         group = taskGroup
         if (!srcExists()) dependsOn("Setup Base Source")
         doFirst { buildSource("1.10.2") }

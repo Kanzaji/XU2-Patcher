@@ -165,13 +165,13 @@ tasks {
         doFirst { buildSource("1.12") }
     }
 
-    register<Copy>("Build ~ 1.11") {
+    register("Build ~ 1.11") {
         group = taskGroup
         if (!srcExists()) dependsOn("Setup Source")
         doFirst { buildSource("1.11") }
     }
 
-    register<Copy>("Build ~ 1.10") {
+    register("Build ~ 1.10") {
         group = taskGroup
         if (!srcExists()) dependsOn("Setup Source")
         doFirst { buildSource("1.10.2") }
