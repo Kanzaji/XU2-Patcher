@@ -28,7 +28,6 @@ import com.google.common.hash.Hashing;
 import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
-import mods.su5ed.ic2patcher.util.IC2VersionExtractor;
 import net.minecraftforge.fml.common.patcher.ClassPatch;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 import net.minecraftforge.fml.repackage.com.nothome.delta.GDiffPatcher;
@@ -47,24 +46,19 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import static mods.su5ed.ic2patcher.util.VersionComparison.compareVersions;
-
 /**
- * STOLEN from MinecraftForge's {@link net.minecraftforge.fml.common.patcher.ClassPatchManager ClassPatchManager}
- *
- * @author MinecraftForge
+ * Taken from MinecraftForge's {@link net.minecraftforge.fml.common.patcher.ClassPatchManager ClassPatchManager}
+ * which is licensed under GNU Lesser General Public License version 2.1
+ * @author MinecraftForge (Modified by Su5eD and Kanzaji)
  */
 public class BinPatchManager {
     //Must be ABOVE INSTANCE so they get set in time for the constructor.
     public static final boolean dumpPatched = Boolean.parseBoolean(System.getProperty("fml.dumpPatchedClasses", "false"));
     public static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("fml.debugClassPatchManager", "false"));
     public static final Logger LOG = LogManager.getLogger("BinPatchManager");
-
     public static final BinPatchManager INSTANCE = new BinPatchManager();
-
     private final GDiffPatcher patcher = new GDiffPatcher();
     private ListMultimap<String, ClassPatch> patches;
-
     private final Map<String,byte[]> patchedClasses = Maps.newHashMap();
     private File tempDir;
     
@@ -74,19 +68,12 @@ public class BinPatchManager {
             LOG.info("Dumping patched classes to {}",tempDir.getAbsolutePath());
         }
     }
-
     
     public byte[] applyPatch(String name, String mappedName, byte[] inputData) {
-        if (patches == null) {
-            return inputData;
-        }
-        if (patchedClasses.containsKey(name)) {
-            return patchedClasses.get(name);
-        }
+        if (patches == null) return inputData;
+        if (patchedClasses.containsKey(name)) return patchedClasses.get(name);
         List<ClassPatch> list = patches.get(name);
-        if (list.isEmpty()) {
-            return inputData;
-        }
+        if (list.isEmpty()) return inputData;
         boolean ignoredError = false;
         if (DEBUG) LOG.debug("Runtime patching class {} (input size {}), found {} patch{}", mappedName, (inputData == null ? 0 : inputData.length), list.size(), list.size()!=1 ? "es" : "");
         for (ClassPatch patch: list) {
@@ -128,9 +115,7 @@ public class BinPatchManager {
                 }
             }
         }
-        if (!ignoredError) {
-            LOG.info("Successfully applied runtime patches for {} (new size {})", mappedName, inputData.length);
-        }
+        if (!ignoredError) LOG.info("Successfully applied runtime patches for {} (new size {})", mappedName, inputData.length);
         if (dumpPatched) {
             try {
                 Files.write(inputData, new File(tempDir,mappedName));
@@ -151,44 +136,13 @@ public class BinPatchManager {
         JarInputStream jis = null;
         try {
             try (ZipFile zip = new ZipFile(modJar)) {
-                // Patches selection depending on the IC2 version.
-                Enumeration<? extends ZipEntry> entries = zip.entries();
-                String patches = "ic2patches.pack.lzma";
-                String versionIC2 = IC2VersionExtractor.getIC2Version(mcLocation);
-                if (versionIC2 == null) {
-                    if (!FMLLaunchHandler.isDeobfuscatedEnvironment()) throw new NullPointerException("Couldn't find IC2 Version! Is IC2 installed?");
-                    LOG.error("Couldn't find IC2 Version, however this is Deobfuscated Environment, so this error will be ignored and no patches will be loaded.");
-                    return;
-                }
-                if (DEBUG) LOG.debug("Current IC2 version: " + versionIC2);
-                versionIC2 = versionIC2.substring(0, versionIC2.indexOf("-"));
+                InputStream binpatchesCompressed = zip.getInputStream(zip.getEntry("patches/1.12/patches.pack.lzma"));
 
-                while (entries.hasMoreElements()) {
-                    // As you can't list all entries under x entry, like with a normal directory,
-                    // it's required to search all entries of the Jar.
-                    String name = entries.nextElement().getName();
-                    if (!name.startsWith("patches/patches[") || !name.endsWith("]/ic2patches.pack.lzma")) continue;
-
-                    // Checking if IC2 Version is in the range specified by the Entry version range.
-                    String[] versions = name.substring(name.indexOf("[")+1, name.indexOf("]")).split(",");
-                    if (DEBUG) LOG.debug("Found patches for IC2 version: " + Arrays.toString(versions));
-
-                    if (versions.length == 2 && compareVersions(versionIC2, versions[0])) {
-                        if (Objects.equals(versions[1], "+") || !compareVersions(versionIC2, versions[1])) {
-                            if (DEBUG) LOG.debug("Loading patches from " + name + " for IC2 versions " + Arrays.toString(versions));
-                            patches = name;
-                            break;
-                        }
-                    }
-                }
-
-                InputStream binpatchesCompressed = zip.getInputStream(zip.getEntry(patches));
                 if (binpatchesCompressed==null) {
-                    if (!FMLLaunchHandler.isDeobfuscatedEnvironment()) {
-                        LOG.fatal("The binary patch set is missing for your version of IC2, things are not going to work!");
-                    }
+                    if (!FMLLaunchHandler.isDeobfuscatedEnvironment()) LOG.fatal("The binary patch set is missing, things are not going to work!");
                     return;
                 }
+
                 try (LzmaInputStream binpatchesDecompressedLzma = new LzmaInputStream(binpatchesCompressed)) {
                     byte[] decompressed = ByteStreams.toByteArray(binpatchesDecompressedLzma);
                     try (ByteArrayInputStream binpatchesDecompressed = new ByteArrayInputStream(decompressed)){
@@ -196,6 +150,7 @@ public class BinPatchManager {
                     }
                 }
             }
+
             catch (Exception e) {
                 throw new RuntimeException("Error occurred reading binary patches. Expect severe problems!", e);
             }

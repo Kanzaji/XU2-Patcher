@@ -170,7 +170,7 @@ fun buildSource(ver: String) {
 
     final.mkdirs()
     val jar = libs.listFiles()?.get(0)
-    jar?.copyTo(File(final, jar.name))
+    jar?.copyTo(File(final, jar.name), overwrite = true)
     libs.deleteRecursively()
 }
 

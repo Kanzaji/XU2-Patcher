@@ -63,7 +63,6 @@ project(":XU2-Patched:Source:1.11").buildFileName = "null"
 project(":XU2-Patched:Source:1.12").buildFileName = "null"
 
 //TODO:
-// - Fix some chars not being correctly saved in patched version.
-// - Finish up Bin Patches Generation
 // - Add Dev Jar generation
 // - Client Runs on the patcher? Do I need to? Client runs should work on the Patch project itself.
+// - Fix 1.10.2 and 1.11 project sources using 1.12 Forge (Causes some issues in the IDE, but mod compiles using original build.gradle)
