@@ -26,7 +26,8 @@ val patchesDir: File = File(projectDir, "patches")
 val taskGroup: String = "xu2 patcher ~ patched"
 val XU2Base: Project = project(":XU2-Base")
 val baseSource: File = File(XU2Base.projectDir, "src")
-val src: File = File(projectDir, "src");
+val src: File = File(projectDir, "src")
+val libs: File = File(buildDir, "libs")
 
 val shade: Configuration by configurations.creating
 
@@ -105,70 +106,42 @@ tasks {
         from(src) { include("**/*.java") }
     }
 
-    register<Jar>("Source Jar ~ 1.12") {
+    // Those are here mostly for Patch generation tasks, as those are a bit faster than build task.
+    // If full jar or deobf one is required, use build (as it also generates source jar)
+    register("Source Jar ~ 1.12") {
         group = taskGroup
-        if (!srcExists()) dependsOn("Setup Source")
-        archiveClassifier.set("sources")
-        archiveBaseName.set("XU2-Patched-1.12")
-        from(src) {
-            include("1.10.2/src/main/java/**")
-            include("1.12/src/main/java/**")
-            eachFile {
-                // A bit crude, but I don't have any other ideas :P
-                // It does result in empty folders, but those *shouldn't* be a problem.
-                this.path = this.path
-                    .replaceFirst("1.10.2/src/main/java/", "")
-                    .replaceFirst("1.12/src/main/java/", "")
-            }
-        }
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        if (!srcExists()) dependsOn("Setup Patched Source")
+        doFirst { packageSource("1.12") }
     }
 
-    register<Jar>("Source Jar ~ 1.11") {
+    register("Source Jar ~ 1.11") {
         group = taskGroup
-        if (!srcExists()) dependsOn("Setup Source")
-        archiveClassifier.set("sources")
-        archiveBaseName.set("XU2-Patched-1.11")
-        from(src) {
-            include("1.10.2/src/main/java/**")
-            include("1.10.2/src/compat111/java/**")
-            include("1.11/src/main/java/**")
-            eachFile {
-                // A bit crude, but I don't have any other ideas :P
-                // It does result in empty folders, but those *shouldn't* be a problem.
-                this.path = this.path
-                    .replaceFirst("1.10.2/src/main/java/", "")
-                    .replaceFirst("1.10.2/src/compat111/java/", "")
-                    .replaceFirst("1.11/src/main/java/", "")
-            }
-        }
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        if (!srcExists()) dependsOn("Setup Patched Source")
+        doFirst { packageSource("1.11") }
     }
 
-    register<Jar>("Source Jar ~ 1.10") {
+    register("Source Jar ~ 1.10") {
         group = taskGroup
-        if (!srcExists()) dependsOn("Setup Source")
-        archiveClassifier.set("sources")
-        archiveBaseName.set("XU2-Patched-1.10")
-        from(project("Source:1.10.2").sourceSets.main.get().allJava)
+        if (!srcExists()) dependsOn("Setup Patched Source")
+        doFirst { packageSource("1.10.2") }
     }
 
     // Jar Generation
     register("Build ~ 1.12") {
         group = taskGroup
-        if (!srcExists()) dependsOn("Setup Source")
+        if (!srcExists()) dependsOn("Setup Patched Source")
         doFirst { buildSource("1.12") }
     }
 
     register("Build ~ 1.11") {
         group = taskGroup
-        if (!srcExists()) dependsOn("Setup Source")
+        if (!srcExists()) dependsOn("Setup Patched Source")
         doFirst { buildSource("1.11") }
     }
 
     register("Build ~ 1.10") {
         group = taskGroup
-        if (!srcExists()) dependsOn("Setup Source")
+        if (!srcExists()) dependsOn("Setup Patched Source")
         doFirst { buildSource("1.10.2") }
     }
 
@@ -191,14 +164,11 @@ tasks {
     register<GeneratePatches>("Generate Patches ~ 1.12") {
         group = taskGroup
 
-        val baseSourceJar = XU2Base.tasks.getByName<Jar>("Source Jar ~ 1.12 (Base)")
-        val sourceJar = getByName<Jar>("Source Jar ~ 1.12")
+        dependsOn(XU2Base.tasks.getByName("Source Jar ~ 1.12 (Base)"))
+        dependsOn(getByName("Source Jar ~ 1.12"))
 
-        dependsOn(baseSourceJar)
-        dependsOn(sourceJar)
-
-        base.set(baseSourceJar.archiveFile.get().asFile)
-        modified.set(sourceJar.archiveFile.get().asFile)
+        base.set(File(XU2Base.buildDir, "libs/1.12/ExtraUtils2-Sources.jar"))
+        modified.set(File(libs, "1.12/ExtraUtils2-Sources.jar"))
         output.set(File(patchesDir, "1.12"))
         isPrintSummary = true
     }
@@ -227,8 +197,8 @@ fun configureBinPatchTask(task: GenerateBinPatches, version: String) {
     task.dependsOn(baseJar)
     task.dependsOn(patchedJar)
     task.patchSets.setFrom(File(patchesDir, version))
-    task.cleanJar.set(File(XU2Base.buildDir, "libs/$version").listFiles()?.get(0))
-    task.dirtyJar.set(File(project.buildDir, "libs/$version").listFiles()?.get(0))
+    task.cleanJar.set(File(XU2Base.buildDir, "libs/$version/ExtraUtils2.jar"))
+    task.dirtyJar.set(File(project.buildDir, "libs/$version/ExtraUtils2.jar"))
     task.output.set(File(rootDir, "src/main/generated/patches/1.12/patches.pack.lzma"))
     task.srg.set(createMcpToSrg.output)
     task.args.set(listOf(
@@ -244,12 +214,48 @@ fun configureBinPatchTask(task: GenerateBinPatches, version: String) {
 fun buildSource(ver: String) {
     val libs = File(src, "$ver/build/libs")
     val final = File(buildDir, "libs/$ver")
-    execSourceTask(":$ver:jar")
+    execSourceTask(":$ver:build")
+
+    // If version changed, it is possible that additional jars will be created.
+    // If that happens, Delete and build again to not break other tasks.
+    if (libs.list().size > 3) {
+        libs.deleteRecursively()
+        buildSource(ver)
+        return;
+    }
 
     final.mkdirs()
-    val jar = libs.listFiles()?.get(0)
-    jar?.copyTo(File(final, jar.name), overwrite = true)
-    libs.deleteRecursively()
+    libs.listFiles()?.forEach {
+        val name: String = if (it.name.endsWith("-deobf.jar")) {
+            "ExtraUtils2-Deobf.jar"
+        } else if (it.name.endsWith("-sources.jar")) {
+            "ExtraUtils2-Sources.jar"
+        } else {
+            "ExtraUtils2.jar"
+        }
+        it.copyTo(File(final, name), overwrite = true)
+    }
+}
+
+fun packageSource(ver: String) {
+    val libs = File(src, "$ver/build/libs")
+    val final = File(buildDir, "libs/$ver")
+    execSourceTask(":$ver:sourceJar")
+
+    final.mkdirs()
+    var sourcesCopied = false
+    var duplicate = false
+    libs.listFiles()?.forEach {
+        if (it.name.endsWith("sources.jar")) {
+            if (sourcesCopied) duplicate = true;
+            it.copyTo(File(final,"ExtraUtils2-Sources.jar"), overwrite = true)
+            sourcesCopied = true;
+        }
+    }
+    if (duplicate) {
+        libs.deleteRecursively()
+        packageSource(ver)
+    }
 }
 
 /**

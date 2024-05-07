@@ -76,6 +76,9 @@ tasks {
                     if (content.endsWith("\n")) file.writeText(content.removeSuffix("\n"))
                 }
             }
+
+            // Removes random test file that for some reason is included in the source jar
+            File(src, "1.10.2/src/main/resources/assets/test").delete()
         }
     }
 
@@ -114,64 +117,72 @@ tasks {
         from(src) { include("**/*.java") }
     }
 
-    register<Jar>("Source Jar ~ 1.12 (Base)") {
+    // Those are here mostly for Patch generation tasks, as those are a bit faster than build task.
+    // If full jar or deobf one is required, use build (as it also generates source jar)
+    register("Source Jar ~ 1.12 (Base)") {
         group = taskGroup
         if (!srcExists()) dependsOn("Setup Source")
-        archiveClassifier.set("sources")
-        archiveBaseName.set("XU2-Base-1.12")
-        from(src) {
-            include("1.10.2/src/main/java/**")
-            include("1.12/src/main/java/**")
-            eachFile {
-                // A bit crude, but I don't have any other ideas :P
-                // It does result in empty folders, but those *shouldn't* be a problem.
-                this.path = this.path
-                    .replaceFirst("1.10.2/src/main/java/", "")
-                    .replaceFirst("1.12/src/main/java/", "")
-            }
-        }
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        doFirst { packageSource("1.12") }
     }
 
-    register<Jar>("Source Jar ~ 1.11 (Base)") {
+    register("Source Jar ~ 1.11 (Base)") {
         group = taskGroup
         if (!srcExists()) dependsOn("Setup Source")
-        archiveClassifier.set("sources")
-        archiveBaseName.set("XU2-Base-1.11")
-        from(src) {
-            include("1.10.2/src/main/java/**")
-            include("1.10.2/src/compat111/java/**")
-            include("1.11/src/main/java/**")
-            eachFile {
-                // A bit crude, but I don't have any other ideas :P
-                // It does result in empty folders, but those *shouldn't* be a problem.
-                this.path = this.path
-                    .replaceFirst("1.10.2/src/main/java/", "")
-                    .replaceFirst("1.10.2/src/compat111/java/", "")
-                    .replaceFirst("1.11/src/main/java/", "")
-            }
-        }
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+        doFirst { packageSource("1.11") }
     }
 
-    register<Jar>("Source Jar ~ 1.10 (Base)") {
+    register("Source Jar ~ 1.10 (Base)") {
         group = taskGroup
         if (!srcExists()) dependsOn("Setup Source")
-        archiveClassifier.set("sources")
-        archiveBaseName.set("XU2-Base-1.10")
-        from(project("Source:1.10.2").sourceSets.main.get().allJava)
+        doFirst { packageSource("1.10.2") }
     }
 }
 
 fun buildSource(ver: String) {
     val libs = File(src, "$ver/build/libs")
     val final = File(buildDir, "libs/$ver")
-    execSourceTask(":$ver:jar")
+    execSourceTask(":$ver:build")
+
+    // If version changed, it is possible that additional jars will be created.
+    // If that happens, Delete and build again to not break other tasks.
+    if (libs.list().size > 3) {
+        libs.deleteRecursively()
+        buildSource(ver)
+        return;
+    }
 
     final.mkdirs()
-    val jar = libs.listFiles()?.get(0)
-    jar?.copyTo(File(final, jar.name), overwrite = true)
-    libs.deleteRecursively()
+    libs.listFiles()?.forEach {
+        val name: String = if (it.name.endsWith("-deobf.jar")) {
+            "ExtraUtils2-Deobf.jar"
+        } else if (it.name.endsWith("-sources.jar")) {
+            "ExtraUtils2-Sources.jar"
+        } else {
+            "ExtraUtils2.jar"
+        }
+        it.copyTo(File(final, name), overwrite = true)
+    }
+}
+
+fun packageSource(ver: String) {
+    val libs = File(src, "$ver/build/libs")
+    val final = File(buildDir, "libs/$ver")
+    execSourceTask(":$ver:sourceJar")
+
+    final.mkdirs()
+    var sourcesCopied = false
+    var duplicate = false
+    libs.listFiles()?.forEach {
+        if (it.name.endsWith("sources.jar")) {
+            if (sourcesCopied) duplicate = true;
+            it.copyTo(File(final,"ExtraUtils2-Sources.jar"), overwrite = true)
+            sourcesCopied = true;
+        }
+    }
+    if (duplicate) {
+        libs.deleteRecursively()
+        packageSource(ver)
+    }
 }
 
 //reobf {
