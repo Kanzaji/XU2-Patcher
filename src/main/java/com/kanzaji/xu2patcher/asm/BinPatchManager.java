@@ -55,7 +55,7 @@ public class BinPatchManager {
     //Must be ABOVE INSTANCE so they get set in time for the constructor.
     public static final boolean dumpPatched = Boolean.parseBoolean(System.getProperty("fml.dumpPatchedClasses", "false"));
     public static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("fml.debugClassPatchManager", "false"));
-    public static final Logger LOG = LogManager.getLogger("BinPatchManager");
+    public static final Logger LOG = LogManager.getLogger("XU2BinPatchManager");
     public static final BinPatchManager INSTANCE = new BinPatchManager();
     private final GDiffPatcher patcher = new GDiffPatcher();
     private ListMultimap<String, ClassPatch> patches;

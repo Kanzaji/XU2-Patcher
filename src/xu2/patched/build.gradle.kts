@@ -95,15 +95,29 @@ tasks {
         doLast { execSourceTask("--refresh-dependencies dependencies") }
     }
 
+    // Runs
+    register("Run Client ~ 1.12") {
+        group = taskGroup
+        if (!srcExists()) dependsOn("Setup Patched Source")
+        doLast { execSourceTask(":1.12:runClient") }
+    }
+
     // Source Jar Generation
     register<Jar>("Source Jar ~ Full") {
         group = taskGroup
         description =
             "Used to package all versions of the mod into a single jar, for Patching the Patched Project. Should not be used to generate binary patches"
-        if (!srcExists()) dependsOn("Copy Source")
+        if (!srcExists()) dependsOn("Setup Patched Source")
         archiveClassifier.set("sources")
         archiveBaseName.set("XU2-Project")
-        from(src) { include("**/*.java") }
+        from(src) {
+            include("**/*.java")
+            exclude("**/gradle")
+            exclude("**/.gradle")
+            exclude("**/META-INF")
+            exclude("**/build")
+            exclude("**/run")
+        }
     }
 
     // Those are here mostly for Patch generation tasks, as those are a bit faster than build task.
@@ -265,6 +279,8 @@ fun packageSource(ver: String) {
 fun execSourceTask(task: String) {
     val os = System.getProperty("os.name").toLowerCase()
     val javaHome = System.getProperty("java.home")
+
+    println("Using Java at: $javaHome to execute task \"$task\" on the XU2 Source...")
 
     val process = if (os.contains("windows")) {
         Runtime.getRuntime().exec("cmd /c set \"JAVA_HOME=$javaHome\" && \"${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew.bat\" $task", null, src)

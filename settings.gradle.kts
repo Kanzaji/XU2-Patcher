@@ -23,6 +23,9 @@ pluginManagement {
     }
 }
 
+if (System.getProperty("java.version") != "1.8.0_151") throw GradleException("Please use JDK version 1.8.0_151. XU2-Source won't compile on newer versions, and won't setup on older.")
+
+// Patcher project
 rootProject.name = "XU2-Patcher"
 
 include(":XU2-Base")

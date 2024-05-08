@@ -1,5 +1,4 @@
 import de.undercouch.gradle.tasks.download.Download
-import org.gradle.internal.impldep.org.bouncycastle.util.encoders.UTF8
 
 plugins {
     java
@@ -61,6 +60,15 @@ tasks {
                     .replace("jcenter()", "mavenCentral()")
                     .replace("http://", "https://")
                     .replace("parseConfig(file('../1.10.2/private.properties'))", "parseConfig(file('../1.10.2/version.properties'))")
+                    // Makes runClient work, as TConstruct has it's own JEI dependency that conflicts on the game launch.
+                    .replace(
+                        "    deobfCompile \"slimeknights:TConstruct:1.12-2.7.2.508\"",
+                        "    deobfCompile (\"slimeknights:TConstruct:1.12-2.7.2.508\")  {\n        exclude group: 'mezz.jei', module: 'jei_1.12'\n    }"
+                    )
+                    .replace(
+                        "minecraft {",
+                        "minecraft {\n    tasks {\n        \"runClient\" {\n            jvmArgs \"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005\"\n        }\n    }"
+                    )
                 )
             }
 
@@ -114,7 +122,14 @@ tasks {
         description = "Used to package all versions of the mod into a single jar, for Patching the Patched Project. Should not be used to generate binary patches"
         if (!srcExists()) dependsOn("Setup Base Source")
         archiveClassifier.set("sources")
-        from(src) { include("**/*.java") }
+        from(src) {
+            include("**/*.java")
+            exclude("**/gradle")
+            exclude("**/.gradle")
+            exclude("**/META-INF")
+            exclude("**/build")
+            exclude("**/run")
+        }
     }
 
     // Those are here mostly for Patch generation tasks, as those are a bit faster than build task.
@@ -219,6 +234,8 @@ dependencies {
 fun execSourceTask(task: String) {
     val os = System.getProperty("os.name").toLowerCase()
     val javaHome = System.getProperty("java.home")
+
+    println("Using Java at: $javaHome to execute task \"$task\" on the XU2 Source...")
 
     val process = if (os.contains("windows")) {
         Runtime.getRuntime().exec("cmd /c set \"JAVA_HOME=$javaHome\" && \"${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew.bat\" $task", null, src)

@@ -109,7 +109,9 @@ tasks {
 
     register<Jar>("Release Jar ~ 1.12") {
         group = taskGroup;
-        dependsOn(project(":XU2-Patched").tasks.getByName<GenerateBinPatches>("Generate Binary Patches ~ 1.12"))
+        val binPatches = project(":XU2-Patched").tasks.getByName<GenerateBinPatches>("Generate Binary Patches ~ 1.12");
+        dependsOn(binPatches)
+        mustRunAfter(binPatches)
 
         archiveClassifier.set("")
         from(sourceSets.main.get().output)

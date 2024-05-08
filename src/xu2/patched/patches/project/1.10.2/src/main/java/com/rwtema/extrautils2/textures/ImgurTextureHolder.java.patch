@@ -1,0 +1,11 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/textures/ImgurTextureHolder.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/textures/ImgurTextureHolder.java
+@@ -195,6 +195,8 @@
+ 						httpurlconnection = (HttpURLConnection) (new URL(XUDownloadImageData.this.imageUrl)).openConnection(Minecraft.getMinecraft().getProxy());
+ 						httpurlconnection.setDoInput(true);
+ 						httpurlconnection.setDoOutput(false);
++						httpurlconnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:125.0) Gecko/20100101 Firefox/125.0");
++						httpurlconnection.setRequestProperty("Referer", "https://imgur.com/");
+ 						httpurlconnection.connect();
+ 
+ 						if (httpurlconnection.getResponseCode() / 100 == 2) {
