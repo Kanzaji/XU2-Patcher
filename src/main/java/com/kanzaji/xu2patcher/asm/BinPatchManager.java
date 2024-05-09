@@ -136,7 +136,8 @@ public class BinPatchManager {
         JarInputStream jis = null;
         try {
             try (ZipFile zip = new ZipFile(modJar)) {
-                InputStream binpatchesCompressed = zip.getInputStream(zip.getEntry("patches/1.12/patches.pack.lzma"));
+                InputStream binpatchesCompressed = null;
+                if (zip.getEntry("patches/1.12/patches.pack.lzma") != null) binpatchesCompressed = zip.getInputStream(zip.getEntry("patches/1.12/patches.pack.lzma"));
 
                 if (binpatchesCompressed==null) {
                     if (!FMLLaunchHandler.isDeobfuscatedEnvironment()) LOG.fatal("The binary patch set is missing, things are not going to work!");

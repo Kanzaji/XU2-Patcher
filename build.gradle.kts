@@ -19,7 +19,6 @@ plugins {
     id("wtf.gofancy.fancygradle") version "1.1.+"
 }
 
-evaluationDependsOnChildren()
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 
 val versionMc = "1.12.2"
@@ -107,6 +106,35 @@ tasks {
         enabled = false
     }
 
+    //TODO: Add Generate Binary Patches ~ Dev 1.12 task and configure this one to use patches from that.
+    register<Jar>("Dev Jar ~ 1.12") {
+        group = taskGroup;
+        archiveFileName.set("XU2-Patcher-dev.jar")
+
+        from(sourceSets.main.get().output) {
+            exclude("patches");
+        }
+
+        manifest {
+            attributes(
+                "FMLCorePlugin" to "com.kanzaji.xu2patcher.asm.PatcherFMLPlugin",
+                "FMLCorePluginContainsFMLMod" to true
+            )
+        }
+    }
+
+    register<Jar>("Api Jar ~ 1.12") {
+        group = taskGroup;
+        archiveFileName.set("XU2-Patcher-api.jar")
+
+        from(sourceSets.main.get().output) {
+            exclude("com/kanzaji/xu2patcher/asm/**");
+            exclude("patches");
+        }
+    }
+
+    // Has to be so low, because XU2-Patched runClient requires the output of Api Jar task.
+    evaluationDependsOnChildren()
     register<Jar>("Release Jar ~ 1.12") {
         group = taskGroup;
         val binPatches = project(":XU2-Patched").tasks.getByName<GenerateBinPatches>("Generate Binary Patches ~ 1.12");
@@ -127,23 +155,6 @@ tasks {
         group = taskGroup
         dependsOn(project(":XU2-Patched").tasks.getByName<Copy>("Setup Patched Source"))
     }
-            
-//    register<Jar>("devJar") {
-//        val generateDevBinPatches = project(":UX2-Patched").tasks.getByName<GenerateBinPatches>("generateDevBinPatches")
-//        dependsOn(generateDevBinPatches)
-//        from(sourceSets.main.get().output) {
-//            exclude("patches");
-//        }
-//        from(generateDevBinPatches.output)
-//
-//        manifest {
-//            attributes(
-////                "FMLCorePlugin" to "mods.su5ed.ic2patcher.asm.PatcherFMLPlugin",
-//                "FMLCorePlugin" to "com.kanzaji.xu2patcher.asm.PatcherFMLPlugin",
-//                "FMLCorePluginContainsFMLMod" to true
-//            )
-//        }
-//    }
 //
 //    whenTaskAdded {
 //        if (name.startsWith("prepareRun")) {

@@ -74,7 +74,7 @@ tasks {
                     // Those require to be compatible with Minecraft 1.10.2 / 1.11 and 1.12! (So mostly config files)
                     .replace(
                         "    api{\n        java {\n",
-                        "    api{\n        java {\n            // XU2-Patcher\n            srcDir '../../../../main/api'"
+                        "    api{\n        java {\n            // XU2-Patcher\n            srcDir '../../../../main/api'\n"
                     )
                 )
             }

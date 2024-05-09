@@ -1,0 +1,11 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/items/ItemFilterItems.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/items/ItemFilterItems.java
+@@ -133,7 +133,7 @@
+ 
+ 			if (useOreDic) {
+ 				int[] ghostOreIDs = OreDictionary.getOreIDs(ghostStack);
+-				int[] targetOreIDs = OreDictionary.getOreIDs(ghostStack);
++				int[] targetOreIDs = OreDictionary.getOreIDs(target);
+ 				for (int a : ghostOreIDs) {
+ 					for (int b : targetOreIDs) {
+ 						if (a == b) return !inverted;

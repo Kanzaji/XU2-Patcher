@@ -99,6 +99,7 @@ tasks {
     register("Run Client ~ 1.12") {
         group = taskGroup
         if (!srcExists()) dependsOn("Setup Patched Source")
+        dependsOn(rootProject.tasks.getByName("Api Jar ~ 1.12"))
         doLast { execSourceTask(":1.12:runClient") }
     }
 
