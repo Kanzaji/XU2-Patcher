@@ -1,0 +1,13 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/backend/entries/VillagerEntry.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/backend/entries/VillagerEntry.java
+@@ -16,7 +16,9 @@
+ 
+ 	@Override
+ 	public String getDisplayName(int meta) {
+-		return I18n.translateToLocal("entity.Villager." + careers.get(meta % careers.size()).getName());
++		XUVillagerCareer carrer = careers.get(meta % careers.size());
++		if (carrer == null) return "Disabled";
++		return I18n.translateToLocal("entity.Villager." + carrer.getName());
+ 	}
+ 
+ 	@Override
