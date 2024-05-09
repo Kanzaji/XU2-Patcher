@@ -9,6 +9,11 @@ import org.apache.logging.log4j.Logger;
 public class XU2Patcher {
     public static Logger logger;
 
+    public XU2Patcher() {
+        XU2PatcherConfig.set(new XU2PatcherConfig("XU2-Patcher"));
+        XU2PatcherConfig.get().load();
+    }
+
     @Mod.EventHandler
     public void start(FMLConstructionEvent event) {
         MinecraftForge.EVENT_BUS.register(this);
@@ -18,13 +23,4 @@ public class XU2Patcher {
     public static void preInit(FMLPreInitializationEvent event) {
         logger = event.getModLog();
     }
-
-    @Mod.EventHandler
-    public static void init(FMLInitializationEvent event) {}
-
-    @Mod.EventHandler
-    public static void postInit(FMLPostInitializationEvent event) {}
-
-    @Mod.EventHandler
-    public void onServerStopped(FMLServerStoppedEvent event) {}
 }

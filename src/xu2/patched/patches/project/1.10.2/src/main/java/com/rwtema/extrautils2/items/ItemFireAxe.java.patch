@@ -1,0 +1,18 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/items/ItemFireAxe.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/items/ItemFireAxe.java
+@@ -1,5 +1,6 @@
+ package com.rwtema.extrautils2.items;
+ 
++import com.kanzaji.xu2patcher.XU2PatcherConfig;
+ import com.rwtema.extrautils2.ExtraUtils2;
+ import com.rwtema.extrautils2.backend.IXUItem;
+ import com.rwtema.extrautils2.backend.model.PassthruModelItem;
+@@ -78,7 +79,7 @@
+ 		setMaxStackSize(1);
+ 		this.setMaxDamage(0);
+ 		setUnlocalizedName(ExtraUtils2.MODID + ":fireaxe");
+-		MinecraftForge.EVENT_BUS.register(new ItemLawSword.OPAnvilHandler(this));
++		if (!(XU2PatcherConfig.get().cheatyTema && XU2PatcherConfig.get().opEffectsFix)) MinecraftForge.EVENT_BUS.register(new ItemLawSword.OPAnvilHandler(this));
+ 	}
+ 
+ //	@Override

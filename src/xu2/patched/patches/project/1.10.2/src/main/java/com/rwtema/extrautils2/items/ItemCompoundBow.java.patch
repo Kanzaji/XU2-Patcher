@@ -1,0 +1,18 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/items/ItemCompoundBow.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/items/ItemCompoundBow.java
+@@ -1,5 +1,6 @@
+ package com.rwtema.extrautils2.items;
+ 
++import com.kanzaji.xu2patcher.XU2PatcherConfig;
+ import com.rwtema.extrautils2.backend.ClientRunnable;
+ import com.rwtema.extrautils2.backend.IXUItem;
+ import com.rwtema.extrautils2.backend.model.PassthruModelItem;
+@@ -52,7 +53,7 @@
+ 			"compound_bow_pull_charged"};
+ 
+ 	public ItemCompoundBow() {
+-		MinecraftForge.EVENT_BUS.register(new ItemLawSword.OPAnvilHandler(this));
++		if (!(XU2PatcherConfig.get().cheatyTema && XU2PatcherConfig.get().opEffectsFix)) MinecraftForge.EVENT_BUS.register(new ItemLawSword.OPAnvilHandler(this));
+ 		setMaxStackSize(1);
+ 		this.setMaxDamage(0);
+ 	}

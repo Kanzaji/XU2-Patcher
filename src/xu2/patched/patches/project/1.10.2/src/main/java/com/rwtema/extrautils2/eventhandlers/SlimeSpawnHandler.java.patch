@@ -1,0 +1,18 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/eventhandlers/SlimeSpawnHandler.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/eventhandlers/SlimeSpawnHandler.java
+@@ -1,5 +1,6 @@
+ package com.rwtema.extrautils2.eventhandlers;
+ 
++import com.kanzaji.xu2patcher.XU2PatcherConfig;
+ import net.minecraft.entity.Entity;
+ import net.minecraft.entity.monster.EntitySlime;
+ import net.minecraft.world.World;
+@@ -11,7 +12,7 @@
+ 
+ public class SlimeSpawnHandler {
+ 	public static void init() {
+-		MinecraftForge.EVENT_BUS.register(new SlimeSpawnHandler());
++		if (!XU2PatcherConfig.get().slimeFix) MinecraftForge.EVENT_BUS.register(new SlimeSpawnHandler());
+ 	}
+ 
+ 	@SubscribeEvent

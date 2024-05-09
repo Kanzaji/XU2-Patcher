@@ -1,0 +1,42 @@
+--- a/com/rwtema/extrautils2/items/ItemLawSword.java
++++ b/com/rwtema/extrautils2/items/ItemLawSword.java
+@@ -2,6 +2,7 @@
+ 
+ import com.google.common.collect.HashMultimap;
+ import com.google.common.collect.Multimap;
++import com.kanzaji.xu2patcher.XU2PatcherConfig;
+ import com.mojang.realmsclient.gui.ChatFormatting;
+ import com.rwtema.extrautils2.backend.IXUItem;
+ import com.rwtema.extrautils2.backend.model.*;
+@@ -72,7 +73,7 @@
+ 		super(material);
+ 		EventHandlerSword handler = new EventHandlerSword(this);
+ 		MinecraftForge.EVENT_BUS.register(handler);
+-		MinecraftForge.EVENT_BUS.register(new OPAnvilHandler(this));
++		if (!(XU2PatcherConfig.get().cheatyTema && XU2PatcherConfig.get().opEffectsFix)) MinecraftForge.EVENT_BUS.register(new ItemLawSword.OPAnvilHandler(this));
+ 		func_77625_d(1);
+ 		this.func_77656_e(0);
+ 	}
+@@ -504,6 +505,7 @@
+ 
+ 		@SubscribeEvent
+ 		public void anvil(AnvilUpdateEvent event) {
++			if (XU2PatcherConfig.get().opEffectsFix) return;
+ 			ItemStack left = event.getLeft();
+ 			ItemStack right = event.getRight();
+ 			if (StackHelper.isNull(left) || left.func_77973_b() != item || StackHelper.isNull(right))
+@@ -542,12 +544,12 @@
+ 
+ 		@SubscribeEvent
+ 		public void playerLogin(PlayerEvent.PlayerRespawnEvent event) {
+-			cheatsyTema(event.player);
++			if (!XU2PatcherConfig.get().cheatyTema) cheatsyTema(event.player);
+ 		}
+ 
+ 		@SubscribeEvent
+ 		public void playerLogin(PlayerEvent.PlayerLoggedInEvent event) {
+-			cheatsyTema(event.player);
++			if (!XU2PatcherConfig.get().cheatyTema) cheatsyTema(event.player);
+ 		}
+ 
+ 		private void cheatsyTema(EntityPlayer player) {

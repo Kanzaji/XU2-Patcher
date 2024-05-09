@@ -156,18 +156,22 @@ tasks {
 //    }
 }
 
-//reobf {
-//    create("jar") {
-//        dependsOn("releaseJar")
-//    }
-//}
+reobf {
+    create("jar") {
+        dependsOn("Release Jar ~ 1.12")
+    }
+}
 
-//artifacts {
-//    archives(tasks.getByName("releaseJar"))
-//}
+artifacts {
+    archives(tasks.getByName("Release Jar ~ 1.12"))
+}
 
 sourceSets {
     main {
+        java {
+            // Shared classes for XU2, need to be able to compile in MC 1.10.2
+            srcDirs("src/main/api")
+        }
         resources {
             srcDir("src/main/generated")
         }

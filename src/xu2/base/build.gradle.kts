@@ -65,9 +65,16 @@ tasks {
                         "    deobfCompile \"slimeknights:TConstruct:1.12-2.7.2.508\"",
                         "    deobfCompile (\"slimeknights:TConstruct:1.12-2.7.2.508\")  {\n        exclude group: 'mezz.jei', module: 'jei_1.12'\n    }"
                     )
+                    // Allows attaching a debugger to XU2-Client
                     .replace(
                         "minecraft {",
                         "minecraft {\n    tasks {\n        \"runClient\" {\n            jvmArgs \"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005\"\n        }\n    }"
+                    )
+                    // Allows for accessing classes in api source directory in XU2 Source
+                    // Those require to be compatible with Minecraft 1.10.2 / 1.11 and 1.12! (So mostly config files)
+                    .replace(
+                        "    api{\n        java {\n",
+                        "    api{\n        java {\n            // XU2-Patcher\n            srcDir '../../../../main/api'"
                     )
                 )
             }
