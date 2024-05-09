@@ -1,0 +1,11 @@
+--- a/com/rwtema/extrautils2/machine/ItemBlockMachine.java
++++ b/com/rwtema/extrautils2/machine/ItemBlockMachine.java
+@@ -88,6 +88,8 @@
+ 
+ 		Machine.EnergyMode mode = machine.energyMode;
+ 
++		if (side == null || side == EnumFacing.UP || side == EnumFacing.DOWN) side = EnumFacing.NORTH;
++
+ 		IBlockState iblockstate1 = this.machine.xuBlockState.defaultState
+ 				.func_177226_a(XUBlockStateCreator.ROTATION_HORIZONTAL, side)
+ 				.func_177226_a(BlockMachine.ACTIVE, false)

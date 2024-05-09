@@ -1,0 +1,11 @@
+--- a/com/rwtema/extrautils2/tile/TileTrashCanFluids.java
++++ b/com/rwtema/extrautils2/tile/TileTrashCanFluids.java
+@@ -34,7 +34,7 @@
+ 
+ 		@Override
+ 		public int fill(FluidStack resource, boolean doFill) {
+-			return resource != null ? resource.amount : 0;
++			return resource != null && (FILTER.isEmpty() || FILTER.matches(resource))? resource.amount : 0;
+ 		}
+ 
+ 		@Nullable
