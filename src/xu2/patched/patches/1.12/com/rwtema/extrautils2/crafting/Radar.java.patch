@@ -1,0 +1,45 @@
+--- a/com/rwtema/extrautils2/crafting/Radar.java
++++ b/com/rwtema/extrautils2/crafting/Radar.java
+@@ -8,6 +8,7 @@
+ import com.rwtema.extrautils2.network.XUPacketServerToClient;
+ import com.rwtema.extrautils2.utils.CapGetter;
+ import com.rwtema.extrautils2.utils.Lang;
++import com.rwtema.extrautils2.utils.LogHelper;
+ import net.minecraft.client.Minecraft;
+ import net.minecraft.client.gui.GuiScreen;
+ import net.minecraft.client.gui.inventory.GuiContainer;
+@@ -182,18 +183,23 @@
+ 								if (handler == null) continue;
+ 
+ 								for (int i = 0; i < handler.getSlots(); i++) {
+-									ItemStack stack1 = handler.getStackInSlot(i);
+-									if (StackHelper.isNull(stack1) || stack1.func_77973_b() != trueItem) continue;
+-
+-									if (trueItem.func_77614_k() && stack1.func_77952_i() != trueItemDamage)
+-										continue;
+-
+-									positions.add(entry.getKey());
+-
+-									if (positions.size() >= PacketPong.MAX_SIZE) {
+-										positions.pollLast();
++									try {
++										ItemStack stack1 = handler.getStackInSlot(i);
++										if (StackHelper.isNull(stack1) || stack1.func_77973_b() != trueItem) continue;
++
++										if (trueItem.func_77614_k() && stack1.func_77952_i() != trueItemDamage)
++											continue;
++
++										positions.add(entry.getKey());
++
++										if (positions.size() >= PacketPong.MAX_SIZE) {
++											positions.pollLast();
++										}
++									} catch (Throwable e) {
++										LogHelper.logger.debug("Caught exception searching tile with ItemHandler: {}", tile.getClass());
++										LogHelper.logger.debug("This is most likely caused by incorrectly implemented ItemHandler capability and not a fault of ExtraUtilities 2.");
++										LogHelper.logger.debug(e);
+ 									}
+-
+ 								}
+ 							}
+ 						}
