@@ -63,7 +63,7 @@ tasks {
                     // Makes runClient work, as TConstruct has it's own JEI dependency that conflicts on the game launch.
                     .replace(
                         "    deobfCompile \"slimeknights:TConstruct:1.12-2.7.2.508\"",
-                        "    deobfCompile (\"slimeknights:TConstruct:1.12-2.7.2.508\")  {\n        exclude group: 'mezz.jei', module: 'jei_1.12'\n    }"
+                        "    deobfCompile (\"slimeknights:TConstruct:1.12-2.7.2.508\")  {\n        exclude group: 'mezz.jei', module: 'jei_1.12'\n    }\n runtime name: \"XU2-Patcher-api\""
                     )
                     // Allows attaching a debugger to XU2-Client
                     .replace(
@@ -75,6 +75,11 @@ tasks {
                     .replace(
                         "    api{\n        java {\n",
                         "    api{\n        java {\n            // XU2-Patcher\n            srcDir '../../../../main/api'\n"
+                    )
+                    // Allows for accessing the api jar (XU2-Patcher without ASM) by XU2.
+                    .replace(
+                        "    maven {\n        url \"https://dvs1.progwml6.com/files/maven\"\n    }",
+                        "    maven {\n        url \"https://dvs1.progwml6.com/files/maven\"\n    }\n    flatDir {\n        dirs '../../../../../build/libs'\n    }"
                     )
                 )
             }
