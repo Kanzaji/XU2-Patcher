@@ -21,7 +21,7 @@ Special thanks to [@Ridanisaurus](https://github.com/Ridanisaurus) for the great
 W.I.P. However tasks in Gradle setup should be self explanatory 😄
 
 ## Licensing
-Entire project, except cases specified below, are licensed under MITT License, which can be found [here](https://github.com/Kanzaji/XU2-Patcher/blob/master/LICENSE).
+Entire project, except cases specified below, are licensed under MIT License, which can be found [here](https://github.com/Kanzaji/XU2-Patcher/blob/master/LICENSE).
 
 Parts of the code which are marked as `@author @Su5eD` are part of a public domain, as of the IC2-Patcher license `The Unlicense` which can be found [here](https://github.com/Su5eD/IC2-Patcher/blob/master/LICENSE).
 
