@@ -1,0 +1,12 @@
+--- a/com/rwtema/extrautils2/machine/TileMachine.java
++++ b/com/rwtema/extrautils2/machine/TileMachine.java
+@@ -372,7 +372,8 @@
+ 
+ 			MachineSlotItem slotItem = machine.itemInputs.get(slot);
+ 			String name = slotItem.name;
+-			return StackHelper.safeCopy(savedItems.contents.getOrDefault(name, StackHelper.empty()));
++//			return StackHelper.safeCopy(savedItems.contents.getOrDefault(name, StackHelper.empty()));
++			return savedItems.contents.getOrDefault(name, StackHelper.empty());
+ 		}
+ 
+ 		@Override
