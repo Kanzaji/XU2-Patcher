@@ -54,32 +54,62 @@ tasks {
 
         doLast {
             // Fixes some deprecated stuff to make XU2 Build files work
+            //TODO: Find a better way to apply those fixes - Literally re-writing files with replace method is not a good idea!
             gradleScripts.forEach {
                 val file = File(src, it)
                 file.writeText(file.readText()
                     .replace("jcenter()", "mavenCentral()")
                     .replace("http://", "https://")
                     .replace("parseConfig(file('../1.10.2/private.properties'))", "parseConfig(file('../1.10.2/version.properties'))")
-                    // Makes runClient work, as TConstruct has it's own JEI dependency that conflicts on the game launch.
+                    // Allows for accessing the api jar (XU2-Patcher without ASM) by XU2.
+                    // Allows for adding CF Dependencies for testing.
+                    .replace(
+                        "    maven {\n        url \"https://dvs1.progwml6.com/files/maven\"\n    }",
+                        "    maven {\n        url \"https://dvs1.progwml6.com/files/maven\"\n    }\n" +
+                                "    flatDir {\n        dirs '../../../../../build/libs'\n    }\n" +
+                                "    maven {\n        url \"https://cursemaven.com\"\n    }"
+                    )
+                    // Makes runClient work, as TConstruct has its own JEI dependency that conflicts on the game launch.
+                    // Adds Railcraft dependency on runtime, see #1.
                     .replace(
                         "    deobfCompile \"slimeknights:TConstruct:1.12-2.7.2.508\"",
-                        "    deobfCompile (\"slimeknights:TConstruct:1.12-2.7.2.508\")  {\n        exclude group: 'mezz.jei', module: 'jei_1.12'\n    }\n runtime name: \"XU2-Patcher-api\""
+                        "    deobfCompile (\"slimeknights:TConstruct:1.12-2.7.2.508\")  {\n" +
+                                "        exclude group: 'mezz.jei', module: 'jei_1.12'\n    }\n" +
+                                "    runtime \"curse.maven:railcraft-51195:3853491\"\n" +
+                                "    runtime name: \"XU2-Patcher-api\""
+                    )
+                    // Updates forge to the minimum required by Railcraft
+                    .replace(
+                        "    version = \"1.12.2-14.23.5.2769\"",
+                        "    version = \"1.12.2-14.23.5.2779\""
                     )
                     // Allows attaching a debugger to XU2-Client
                     .replace(
                         "minecraft {",
-                        "minecraft {\n    tasks {\n        \"runClient\" {\n            jvmArgs \"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005\"\n        }\n    }"
+                        "minecraft {\n    tasks {\n        \"runClient\" {\n            jvmArgs \"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005\"\n        }\n    }"
                     )
-                    // Allows for accessing classes in api source directory in XU2 Source
+                    // Allows for accessing classes in api source directory in XU2 Source.
                     // Those require to be compatible with Minecraft 1.10.2 / 1.11 and 1.12! (So mostly config files)
                     .replace(
                         "    api{\n        java {\n",
                         "    api{\n        java {\n            // XU2-Patcher\n            srcDir '../../../../main/api'\n"
                     )
-                    // Allows for accessing the api jar (XU2-Patcher without ASM) by XU2.
+                    // Disabled getAssets task, to allow booting the client in a reasonable time (and not waiting 15 minutes for a broken task to timeout)
                     .replace(
-                        "    maven {\n        url \"https://dvs1.progwml6.com/files/maven\"\n    }",
-                        "    maven {\n        url \"https://dvs1.progwml6.com/files/maven\"\n    }\n    flatDir {\n        dirs '../../../../../build/libs'\n    }"
+                        "archivesBaseName = \"extrautils2-1.12\"\n\n\n\n",
+                        "archivesBaseName = \"extrautils2-1.12\"\n" +
+                                "\n" +
+                                "tasks.getByName(\"getAssets\").configure {\n" +
+                                "    enabled = false;\n" +
+                                "}\n" +
+                                "\n" +
+                                "tasks.getByName(\"getAssetIndex\").configure {\n" +
+                                "    enabled = false;\n" +
+                                "}\n" +
+                                "\n" +
+                                "tasks.getByName(\"runClient\").configure {\n" +
+                                "    outputs.upToDateWhen {false}\n" +
+                                "}\n"
                     )
                 )
             }

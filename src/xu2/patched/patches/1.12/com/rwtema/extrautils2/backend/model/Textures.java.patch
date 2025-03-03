@@ -1,0 +1,19 @@
+--- a/com/rwtema/extrautils2/backend/model/Textures.java
++++ b/com/rwtema/extrautils2/backend/model/Textures.java
+@@ -27,6 +27,7 @@
+ import net.minecraftforge.client.event.TextureStitchEvent;
+ import net.minecraftforge.client.model.ModelLoader;
+ import net.minecraftforge.common.MinecraftForge;
++import net.minecraftforge.fml.common.eventhandler.EventPriority;
+ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+ import net.minecraftforge.fml.relauncher.Side;
+ import net.minecraftforge.fml.relauncher.SideOnly;
+@@ -88,7 +89,7 @@
+ 		texCreators.put(s, creator);
+ 	}
+ 
+-	@SubscribeEvent
++	@SubscribeEvent(priority = EventPriority.HIGH)
+ 	public void loadTextures(TextureStitchEvent.Pre event) {
+ 		ConnectedTexturesHelper.init();
+ 		MISSING_SPRITE = event.getMap().func_174944_f();

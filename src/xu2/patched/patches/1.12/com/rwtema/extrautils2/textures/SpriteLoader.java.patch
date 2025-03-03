@@ -1,0 +1,10 @@
+--- a/com/rwtema/extrautils2/textures/SpriteLoader.java
++++ b/com/rwtema/extrautils2/textures/SpriteLoader.java
+@@ -24,7 +24,6 @@
+ 		return true;
+ 	}
+ 
+-	@Override
+ 	public abstract boolean load(IResourceManager manager, ResourceLocation location);
+ 
+ 	protected void loadSprite(BufferedImage[] images, AnimationMetadataSection meta) {
