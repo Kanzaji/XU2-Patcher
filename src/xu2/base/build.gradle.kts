@@ -86,7 +86,10 @@ tasks {
                     // Allows attaching a debugger to XU2-Client
                     .replace(
                         "minecraft {",
-                        "minecraft {\n    tasks {\n        \"runClient\" {\n            jvmArgs \"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005\"\n        }\n    }"
+                        "minecraft {\n    tasks {\n        \"runClient\" {\n            jvmArgs " +
+                                "\"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005\", " +
+                                "\"-Dlog4j.configurationFile=\\\"log4j2.xml\\\"\"" +
+                                "\n        }\n    }"
                     )
                     // Allows for accessing classes in api source directory in XU2 Source.
                     // Those require to be compatible with Minecraft 1.10.2 / 1.11 and 1.12! (So mostly config files)
