@@ -1,0 +1,10 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/potion/PotionsHelper.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/potion/PotionsHelper.java
+@@ -90,7 +90,6 @@
+ 				resourcePathIn
+ 		));
+ 		CompatHelper112.register(type);
+-		addExplicitDerivedRecipes(type);
+ 		return type;
+ 	}
+ 
