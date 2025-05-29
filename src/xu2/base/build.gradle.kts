@@ -121,6 +121,7 @@ tasks {
 
             // Using own Gradle 3.0 wrapper to make everything work, as XU2 project is cursed in structure,
             // use execSourceTask fun for command execution on the source code.
+            execSourceTask("--refresh-dependencies")
 
             // Strips new lines at the end of the source files, as those cause random patches to generate.
             fileTree(src) {
