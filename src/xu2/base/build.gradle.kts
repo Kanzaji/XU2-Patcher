@@ -63,11 +63,13 @@ tasks {
                     .replace("parseConfig(file('../1.10.2/private.properties'))", "parseConfig(file('../1.10.2/version.properties'))")
                     // Allows for accessing the api jar (XU2-Patcher without ASM) by XU2.
                     // Allows for adding CF Dependencies for testing.
+                    // Fixes MultiPart Maven
                     .replace(
                         "    maven {\n        url \"https://dvs1.progwml6.com/files/maven\"\n    }",
                         "    maven {\n        url \"https://dvs1.progwml6.com/files/maven\"\n    }\n" +
                                 "    flatDir {\n        dirs '../../../../../build/libs'\n    }\n" +
-                                "    maven {\n        url \"https://cursemaven.com\"\n    }"
+                                "    maven {\n        url \"https://cursemaven.com\"\n    }\n" +
+                                "    maven {\n        url \"https://maven.cil.li/\"\n    }"
                     )
                     // Makes runClient work, as TConstruct has its own JEI dependency that conflicts on the game launch.
                     // Adds Railcraft dependency on runtime, see #1.
@@ -86,7 +88,10 @@ tasks {
                     // Allows attaching a debugger to XU2-Client
                     .replace(
                         "minecraft {",
-                        "minecraft {\n    tasks {\n        \"runClient\" {\n            jvmArgs \"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005\"\n        }\n    }"
+                        "minecraft {\n    tasks {\n        \"runClient\" {\n            jvmArgs " +
+                                "\"-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005\", " +
+                                "\"-Dlog4j.configurationFile=\\\"log4j2.xml\\\"\"" +
+                                "\n        }\n    }"
                     )
                     // Allows for accessing classes in api source directory in XU2 Source.
                     // Those require to be compatible with Minecraft 1.10.2 / 1.11 and 1.12! (So mostly config files)
@@ -116,7 +121,7 @@ tasks {
 
             // Using own Gradle 3.0 wrapper to make everything work, as XU2 project is cursed in structure,
             // use execSourceTask fun for command execution on the source code.
-            execSourceTask("--refresh-dependencies dependencies")
+            execSourceTask("--refresh-dependencies")
 
             // Strips new lines at the end of the source files, as those cause random patches to generate.
             fileTree(src) {
@@ -279,18 +284,27 @@ fun execSourceTask(task: String) {
 
     println("Using Java at: $javaHome to execute task \"$task\" on the XU2 Source...")
 
-    val process = if (os.contains("windows")) {
-        Runtime.getRuntime().exec("cmd /c set \"JAVA_HOME=$javaHome\" && \"${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew.bat\" $task", null, src)
+
+    val pb = if (os.contains("windows")) {
+        ProcessBuilder(File(projectDir,"../gradle-3.0-wrapper/gradlew.bat").absolutePath, task)
     } else {
         //TODO: Test if this works on SH / Linux
-        Runtime.getRuntime().exec("export JAVA_HOME=\"$javaHome\" && \"${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew\" $task", null, src)
+        ProcessBuilder(File(projectDir,"../gradle-3.0-wrapper/gradlew").absolutePath, task)
     }
 
-    do {
-        Thread.sleep(50);
-        process.inputStream.bufferedReader().lines().forEach(System.out::println)
-        process.errorStream.bufferedReader().lines().forEach(System.out::println)
-    } while (process.isAlive)
+    // Doesn't work in IDE :V Still requires manual reading of the output streams.
+//    pb.inheritIO()
+    pb.directory(src)
+    pb.environment()["JAVA_HOME"] = javaHome;
+
+    val process = pb.start();
+    val reader = process.inputStream.bufferedReader()
+    val errorReader = process.errorStream.bufferedReader()
+
+    Thread { reader.lines().forEach { println(it) } }.start()
+    Thread { errorReader.lines().forEach { System.err.println(it) } }.start()
+
+    process.waitFor()
 
     val exitCode = process.exitValue();
 

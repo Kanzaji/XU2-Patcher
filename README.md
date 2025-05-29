@@ -11,13 +11,15 @@ Special thanks to [@Ridanisaurus](https://github.com/Ridanisaurus) for the great
 - Allows for disabling op anvil effects for few XU2 tools (Part of NoTemaStahp integration)
 - Allows for disabling Tema "little small advantage" in code 😋 (Part of NoTemaStahp integration)
 - Fixes a crash when a villager profession was disabled, and you tried to open the book entry of that profession.
-  <br>(Fixes [#42](https://github.com/rwtema/Extra-Utilities-2-Source/issues/42) / Impl [#390](https://github.com/rwtema/Extra-Utilities-2-Source/pull/390))
+  <br>([Extra-Utilities-2-Source/#42](https://github.com/rwtema/Extra-Utilities-2-Source/issues/42) / [Extra-Utilities-2-Source#390](https://github.com/rwtema/Extra-Utilities-2-Source/pull/390))
 - Fixes a crash when radar wasn't able to check inventory of some blocks (it will log it at debug level now if something happens).
-  <br>(Fixes [#293](https://github.com/rwtema/Extra-Utilities-2-Source/issues/293) / Impl [#381](https://github.com/rwtema/Extra-Utilities-2-Source/pull/381))
+  <br>([Extra-Utilities-2-Source#293](https://github.com/rwtema/Extra-Utilities-2-Source/issues/293) / [Extra-Utilities-2-Source#381](https://github.com/rwtema/Extra-Utilities-2-Source/pull/381))
 - Fixes Villager Profession names being corrupted.
-  <br>(Fixes [#325](https://github.com/rwtema/Extra-Utilities-2-Source/issues/325) [#363](https://github.com/rwtema/Extra-Utilities-2-Source/issues/363) / Impl [#366](https://github.com/rwtema/Extra-Utilities-2-Source/pull/366))
+  <br>([Extra-Utilities-2-Source#325](https://github.com/rwtema/Extra-Utilities-2-Source/issues/325) [#363](https://github.com/rwtema/Extra-Utilities-2-Source/issues/363) / [Extra-Utilities-2-Source#366](https://github.com/rwtema/Extra-Utilities-2-Source/pull/366))
 - Fixes a crash with a builder incorrectly placing a machine, causing a crash.
-  <br>(Impl [#302](https://github.com/rwtema/Extra-Utilities-2-Source/pull/302))
+  <br>([Extra-Utilities-2-Source#302](https://github.com/rwtema/Extra-Utilities-2-Source/pull/302))
+- Fixes potion recipes ignoring NBT ([#6](https://github.com/Kanzaji/XU2-Patcher/pull/6))
+  <br>([Extra-Utilities-2-Source#221](https://github.com/rwtema/Extra-Utilities-2-Source/issues/221))
 
 ## Repository Setup
 As ExtraUtilities 2 is ARR, this repository requires initial setup to generate patches.
@@ -30,8 +32,6 @@ As ExtraUtilities 2 is ARR, this repository requires initial setup to generate p
 ### Launching the client and debugging
 Use Gradle task `xu2 patcher ~ patched/Run Client ~ 1.12` or `1.12:runClient` (XU2 Task) to launch the client.<br>
 Current setup requires attaching a debugger for the client to launch.
-
-###### Note: `1.12:runClient` task can sometimes hang on the last task, not launching the client. This requires manual cancellation of the build.<br> Both tasks have currently broken console log output.
 
 ### Generating Patches and building the project.
 You need to execute tasks provided below in the provided order to generate patches.

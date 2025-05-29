@@ -92,7 +92,7 @@ tasks {
 
         from(zipTree(patchedJar))
         into("src")
-        doLast { execSourceTask("--refresh-dependencies dependencies") }
+        doLast { execSourceTask("--refresh-dependencies") }
     }
 
     // Runs
@@ -283,18 +283,27 @@ fun execSourceTask(task: String) {
 
     println("Using Java at: $javaHome to execute task \"$task\" on the XU2 Source...")
 
-    val process = if (os.contains("windows")) {
-        Runtime.getRuntime().exec("cmd /c set \"JAVA_HOME=$javaHome\" && \"${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew.bat\" $task", null, src)
+
+    val pb = if (os.contains("windows")) {
+        ProcessBuilder(File(projectDir,"../gradle-3.0-wrapper/gradlew.bat").absolutePath, task)
     } else {
         //TODO: Test if this works on SH / Linux
-        Runtime.getRuntime().exec("export JAVA_HOME=\"$javaHome\" && \"${File(projectDir, "../gradle-3.0-wrapper").absolutePath}\\gradlew\" $task", null, src)
+        ProcessBuilder(File(projectDir,"../gradle-3.0-wrapper/gradlew").absolutePath, task)
     }
 
-    do {
-        Thread.sleep(50);
-        process.inputStream.bufferedReader().lines().forEach(System.out::println)
-        process.errorStream.bufferedReader().lines().forEach(System.out::println)
-    } while (process.isAlive)
+    // Doesn't work in IDE :V Still requires manual reading of the output streams.
+//    pb.inheritIO()
+    pb.directory(src)
+    pb.environment()["JAVA_HOME"] = javaHome;
+
+    val process = pb.start();
+    val reader = process.inputStream.bufferedReader()
+    val errorReader = process.errorStream.bufferedReader()
+
+    Thread { reader.lines().forEach { println(it) } }.start()
+    Thread { errorReader.lines().forEach { System.err.println(it) } }.start()
+
+    process.waitFor()
 
     val exitCode = process.exitValue();
 

@@ -1,0 +1,133 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/backend/entries/XU2Entries.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/backend/entries/XU2Entries.java
+@@ -65,9 +65,10 @@
+ import net.minecraft.inventory.ContainerWorkbench;
+ import net.minecraft.item.EnumDyeColor;
+ import net.minecraft.item.ItemStack;
++import net.minecraft.item.crafting.Ingredient;
+ import net.minecraft.potion.PotionEffect;
++import net.minecraft.potion.PotionHelper;
+ import net.minecraft.potion.PotionType;
+-import net.minecraft.potion.PotionUtils;
+ import net.minecraft.tileentity.TileEntity;
+ import net.minecraft.util.EnumFacing;
+ import net.minecraft.util.ResourceLocation;
+@@ -78,8 +79,6 @@
+ import net.minecraft.world.biome.Biome;
+ import net.minecraft.world.chunk.Chunk;
+ import net.minecraftforge.common.MinecraftForge;
+-import net.minecraftforge.common.brewing.BrewingOreRecipe;
+-import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+ import net.minecraftforge.common.config.Configuration;
+ import net.minecraftforge.oredict.OreDictionary;
+ import org.apache.commons.lang3.tuple.Pair;
+@@ -933,16 +932,10 @@
+ 		@Override
+ 		public void registerTypesAndRecipes() {
+ 			PotionType antiFlying = PotionsHelper.registerPotionType(new PotionEffect(value, 60 * 20));
+-			BrewingRecipeRegistry.addRecipe(
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionsHelper.getAwkwardPotionType()),
+-					"obsidian",
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), antiFlying));
++			PotionHelper.addMix(PotionsHelper.getAwkwardPotionType(), Ingredient.fromStacks(OreDictionary.getOres("obsidian").toArray(new ItemStack[0])), antiFlying);
+ 
+ 			PotionType antiFlying2 = PotionsHelper.registerDerivedPotionType(new PotionEffect(value, 8 * 60 * 20), antiFlying, ".long");
+-			BrewingRecipeRegistry.addRecipe(
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), antiFlying),
+-					"dustRedstone",
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), antiFlying2));
++			PotionHelper.addMix(antiFlying, Ingredient.fromStacks(OreDictionary.getOres("dustRedstone").toArray(new ItemStack[0])), antiFlying2);
+ 		}
+ 	};
+ 	public static PotionEntry<PotionSecondChance> potionAntiDeath = new PotionEntry<PotionSecondChance>("potion_second_chance", "Will save from death but only once.") {
+@@ -954,10 +947,7 @@
+ 		@Override
+ 		public void registerTypesAndRecipes() {
+ 			PotionType antiDeath = PotionsHelper.registerPotionType(new PotionEffect(value, 2 * 60 * 20));
+-			BrewingRecipeRegistry.addRecipe(
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionsHelper.getVanillaType("strong_healing")),
+-					new ItemStack(Items.GOLDEN_APPLE, 1, 1),
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), antiDeath));
++			PotionHelper.addMix(PotionsHelper.getVanillaType("strong_healing"), Ingredient.fromStacks(new ItemStack(Items.GOLDEN_APPLE, 1, 1)), antiDeath);
+ 		}
+ 	};
+ 	public static PotionEntry<PotionNapalm> potionGreekFire = new PotionEntry<PotionNapalm>("potion_greek_fire", "Creates a fire that cannot be extenguished") {
+@@ -965,14 +955,8 @@
+ 		public void registerTypesAndRecipes() {
+ 			PotionType greekFire = PotionsHelper.registerPotionType(new PotionEffect(value, 2 * 60 * 20));
+ 			PotionType oily = PotionsHelper.newGenericPotion("Oily");
+-			BrewingRecipeRegistry.addRecipe(
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionsHelper.getAwkwardPotionType()),
+-					new ItemStack(Items.BEETROOT),
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), oily));
+-			BrewingRecipeRegistry.addRecipe(
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), oily),
+-					new ItemStack(Items.LAVA_BUCKET),
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), greekFire));
++			PotionHelper.addMix(PotionsHelper.getAwkwardPotionType(), Ingredient.fromItem(Items.BEETROOT), oily);
++			PotionHelper.addMix(oily, Ingredient.fromItem(Items.LAVA_BUCKET), greekFire);
+ 		}
+ 
+ 		@Override
+@@ -984,11 +968,7 @@
+ 		@Override
+ 		public void registerTypesAndRecipes() {
+ 			PotionType greekFire = PotionsHelper.registerPotionType(new PotionEffect(value, 30 * 20));
+-
+-			BrewingRecipeRegistry.addRecipe(
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionTypes.LEAPING),
+-					new ItemStack(Items.SUGAR),
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), greekFire));
++			PotionHelper.addMix(PotionTypes.LEAPING, Ingredient.fromItem(Items.SUGAR), greekFire);
+ 		}
+ 
+ 		@Override
+@@ -1000,12 +980,7 @@
+ 		@Override
+ 		public void registerTypesAndRecipes() {
+ 			PotionType relapse = PotionsHelper.registerPotionType(new PotionEffect(value, 8 * 60 * 20));
+-			BrewingRecipeRegistry.addRecipe(new BrewingOreRecipe(
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionsHelper.getAwkwardPotionType()),
+-					Lists.newArrayList(
+-							new ItemStack(Blocks.LIT_PUMPKIN)
+-					),
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), relapse)));
++			PotionHelper.addMix(PotionsHelper.getAwkwardPotionType(), Ingredient.fromStacks(new ItemStack(Blocks.LIT_PUMPKIN)), relapse);
+ 		}
+ 
+ 		@Override
+@@ -1022,14 +997,13 @@
+ 		@Override
+ 		public void registerTypesAndRecipes() {
+ 			PotionType love = PotionsHelper.registerPotionType(new PotionEffect(value, 10 * 20));
+-			BrewingRecipeRegistry.addRecipe(new BrewingOreRecipe(
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionsHelper.getAwkwardPotionType()),
+-					Lists.newArrayList(
+-							new ItemStack(Blocks.DOUBLE_PLANT, 1, BlockDoublePlant.EnumPlantType.ROSE.getMeta()),
+-							new ItemStack(BlockFlower.EnumFlowerType.POPPY.getBlockType().getBlock(), 1, BlockFlower.EnumFlowerType.POPPY.getMeta()),
+-							new ItemStack(BlockFlower.EnumFlowerType.RED_TULIP.getBlockType().getBlock(), 1, BlockFlower.EnumFlowerType.RED_TULIP.getMeta())
++			PotionHelper.addMix(PotionsHelper.getAwkwardPotionType(),
++					Ingredient.fromStacks(
++                            new ItemStack(Blocks.DOUBLE_PLANT, 1, BlockDoublePlant.EnumPlantType.ROSE.getMeta()),
++                            new ItemStack(BlockFlower.EnumFlowerType.POPPY.getBlockType().getBlock(), 1, BlockFlower.EnumFlowerType.POPPY.getMeta()),
++                            new ItemStack(BlockFlower.EnumFlowerType.RED_TULIP.getBlockType().getBlock(), 1, BlockFlower.EnumFlowerType.RED_TULIP.getMeta())
+ 					),
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), love)));
++					love);
+ 		}
+ 	};
+ 	public static PotionEntry<PotionPurge> potionPurge = new PotionEntry<PotionPurge>("potion_Purge", null) {
+@@ -1041,12 +1015,7 @@
+ 		@Override
+ 		public void registerTypesAndRecipes() {
+ 			PotionType Purge = PotionsHelper.registerPotionType(new PotionEffect(value));
+-			BrewingRecipeRegistry.addRecipe(new BrewingOreRecipe(
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionsHelper.getAwkwardPotionType()),
+-					Lists.newArrayList(
+-							new ItemStack(Items.ROTTEN_FLESH)
+-					),
+-					PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), Purge)));
++			PotionHelper.addMix(PotionsHelper.getAwkwardPotionType(), Ingredient.fromItem(Items.ROTTEN_FLESH), Purge);
+ 		}
+ 	};
+ 	public static VillagerEntrySimple alchemist = new VillagerEntrySimple("alchemist") {
