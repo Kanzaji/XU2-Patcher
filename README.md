@@ -33,8 +33,6 @@ As ExtraUtilities 2 is ARR, this repository requires initial setup to generate p
 Use Gradle task `xu2 patcher ~ patched/Run Client ~ 1.12` or `1.12:runClient` (XU2 Task) to launch the client.<br>
 Current setup requires attaching a debugger for the client to launch.
 
-###### Note: `1.12:runClient` task is setup to require a debugger attached (Port: 5005) to start the execution!
-
 ### Generating Patches and building the project.
 You need to execute tasks provided below in the provided order to generate patches.
 - `xu2 patcher ~ patched/Generate Patches ~ 1.12` - Generates patches for the Patcher
