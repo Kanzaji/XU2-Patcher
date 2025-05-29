@@ -63,11 +63,13 @@ tasks {
                     .replace("parseConfig(file('../1.10.2/private.properties'))", "parseConfig(file('../1.10.2/version.properties'))")
                     // Allows for accessing the api jar (XU2-Patcher without ASM) by XU2.
                     // Allows for adding CF Dependencies for testing.
+                    // Fixes MultiPart Maven
                     .replace(
                         "    maven {\n        url \"https://dvs1.progwml6.com/files/maven\"\n    }",
                         "    maven {\n        url \"https://dvs1.progwml6.com/files/maven\"\n    }\n" +
                                 "    flatDir {\n        dirs '../../../../../build/libs'\n    }\n" +
-                                "    maven {\n        url \"https://cursemaven.com\"\n    }"
+                                "    maven {\n        url \"https://cursemaven.com\"\n    }\n" +
+                                "    maven {\n        url \"https://maven.cil.li/\"\n    }"
                     )
                     // Makes runClient work, as TConstruct has its own JEI dependency that conflicts on the game launch.
                     // Adds Railcraft dependency on runtime, see #1.
@@ -119,7 +121,6 @@ tasks {
 
             // Using own Gradle 3.0 wrapper to make everything work, as XU2 project is cursed in structure,
             // use execSourceTask fun for command execution on the source code.
-            execSourceTask("--refresh-dependencies dependencies")
 
             // Strips new lines at the end of the source files, as those cause random patches to generate.
             fileTree(src) {
