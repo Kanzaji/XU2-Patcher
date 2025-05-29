@@ -92,7 +92,7 @@ tasks {
 
         from(zipTree(patchedJar))
         into("src")
-        doLast { execSourceTask("--refresh-dependencies dependencies") }
+        doLast { execSourceTask("--refresh-dependencies") }
     }
 
     // Runs
