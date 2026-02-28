@@ -1,14 +1,15 @@
 --- a/com/rwtema/extrautils2/items/ItemLawSword.java
 +++ b/com/rwtema/extrautils2/items/ItemLawSword.java
-@@ -2,6 +2,7 @@
+@@ -1,7 +1,7 @@
+ package com.rwtema.extrautils2.items;
  
- import com.google.common.collect.HashMultimap;
+-import com.google.common.collect.HashMultimap;
  import com.google.common.collect.Multimap;
 +import com.kanzaji.xu2patcher.XU2PatcherConfig;
  import com.mojang.realmsclient.gui.ChatFormatting;
  import com.rwtema.extrautils2.backend.IXUItem;
  import com.rwtema.extrautils2.backend.model.*;
-@@ -72,7 +73,7 @@
+@@ -72,7 +72,7 @@
  		super(material);
  		EventHandlerSword handler = new EventHandlerSword(this);
  		MinecraftForge.EVENT_BUS.register(handler);
@@ -17,6 +18,40 @@
  		func_77625_d(1);
  		this.func_77656_e(0);
  	}
+@@ -130,7 +130,7 @@
+ 	private void drainHealth(EntityLivingBase target) {
+ 		double l = 0;
+ 
+-		IAttributeInstance a = target.func_110140_aT().func_111152_a(SharedMonsterAttributes.field_111267_a.func_111108_a());
++		IAttributeInstance a = target.func_110148_a(SharedMonsterAttributes.field_111267_a);
+ 
+ 		AttributeModifier attr = a.func_111127_a(soulDamageUUID);
+ 		if (attr != null) {
+@@ -142,9 +142,10 @@
+ 
+ 		if (l < -1) l = -1;
+ 
+-		Multimap<String, AttributeModifier> multimap = HashMultimap.create();
+-		multimap.put(SharedMonsterAttributes.field_111267_a.func_111108_a(), new AttributeModifier(soulDamageUUID, "Soul Damage", l, 2));
+-		target.func_110140_aT().func_111147_b(multimap);
++        if (a.func_111127_a(soulDamageUUID) != null) {
++            a.func_188479_b(soulDamageUUID);
++        }
++        a.func_111121_a(new AttributeModifier(soulDamageUUID, "Soul Damage", l, 2));
+ 		if (l <= -1) {
+ 			target.func_70097_a(DamageSource.field_76380_i, Float.MAX_VALUE);
+ 		}
+@@ -407,8 +408,8 @@
+ 			if (event.getEntity().field_70170_p.field_72995_K)
+ 				return;
+ 
+-			if (MCTimer.serverTimer % (20 * 10) == 0) {
+-				IAttributeInstance a = event.getEntityLiving().func_110140_aT().func_111152_a(SharedMonsterAttributes.field_111267_a.func_111108_a());
++			if (event.getEntity().func_130014_f_().func_82737_E() % (20 * 10) == 0) {
++				IAttributeInstance a = event.getEntityLiving().func_110148_a(SharedMonsterAttributes.field_111267_a);
+ 
+ 				AttributeModifier attr = a.func_111127_a(soulDamageUUID);
+ 				if (attr != null) {
 @@ -504,6 +505,7 @@
  
  		@SubscribeEvent

@@ -1,14 +1,15 @@
 --- a/1.10.2/src/main/java/com/rwtema/extrautils2/items/ItemLawSword.java
 +++ b/1.10.2/src/main/java/com/rwtema/extrautils2/items/ItemLawSword.java
-@@ -2,6 +2,7 @@
+@@ -1,7 +1,7 @@
+ package com.rwtema.extrautils2.items;
  
- import com.google.common.collect.HashMultimap;
+-import com.google.common.collect.HashMultimap;
  import com.google.common.collect.Multimap;
 +import com.kanzaji.xu2patcher.XU2PatcherConfig;
  import com.mojang.realmsclient.gui.ChatFormatting;
  import com.rwtema.extrautils2.backend.IXUItem;
  import com.rwtema.extrautils2.backend.model.*;
-@@ -70,7 +71,7 @@
+@@ -70,7 +70,7 @@
  		super(material);
  		EventHandlerSword handler = new EventHandlerSword(this);
  		MinecraftForge.EVENT_BUS.register(handler);
@@ -17,6 +18,40 @@
  		setMaxStackSize(1);
  		this.setMaxDamage(0);
  	}
+@@ -128,7 +128,7 @@
+ 	private void drainHealth(EntityLivingBase target) {
+ 		double l = 0;
+ 
+-		IAttributeInstance a = target.getAttributeMap().getAttributeInstanceByName(SharedMonsterAttributes.MAX_HEALTH.getName());
++		IAttributeInstance a = target.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
+ 
+ 		AttributeModifier attr = a.getModifier(soulDamageUUID);
+ 		if (attr != null) {
+@@ -140,9 +140,10 @@
+ 
+ 		if (l < -1) l = -1;
+ 
+-		Multimap<String, AttributeModifier> multimap = HashMultimap.create();
+-		multimap.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(soulDamageUUID, "Soul Damage", l, 2));
+-		target.getAttributeMap().applyAttributeModifiers(multimap);
++        if (a.getModifier(soulDamageUUID) != null) {
++            a.removeModifier(soulDamageUUID);
++        }
++        a.applyModifier(new AttributeModifier(soulDamageUUID, "Soul Damage", l, 2));
+ 		if (l <= -1) {
+ 			target.attackEntityFrom(DamageSource.OUT_OF_WORLD, Float.MAX_VALUE);
+ 		}
+@@ -405,8 +406,8 @@
+ 			if (event.getEntity().world.isRemote)
+ 				return;
+ 
+-			if (MCTimer.serverTimer % (20 * 10) == 0) {
+-				IAttributeInstance a = event.getEntityLiving().getAttributeMap().getAttributeInstanceByName(SharedMonsterAttributes.MAX_HEALTH.getName());
++			if (event.getEntity().getEntityWorld().getTotalWorldTime() % (20 * 10) == 0) {
++				IAttributeInstance a = event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
+ 
+ 				AttributeModifier attr = a.getModifier(soulDamageUUID);
+ 				if (attr != null) {
 @@ -502,6 +503,7 @@
  
  		@SubscribeEvent
