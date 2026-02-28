@@ -1,14 +1,15 @@
 --- a/1.10.2/src/main/java/com/rwtema/extrautils2/items/ItemLawSword.java
 +++ b/1.10.2/src/main/java/com/rwtema/extrautils2/items/ItemLawSword.java
-@@ -2,6 +2,7 @@
+@@ -1,7 +1,7 @@
+ package com.rwtema.extrautils2.items;
  
- import com.google.common.collect.HashMultimap;
+-import com.google.common.collect.HashMultimap;
  import com.google.common.collect.Multimap;
 +import com.kanzaji.xu2patcher.XU2PatcherConfig;
  import com.mojang.realmsclient.gui.ChatFormatting;
  import com.rwtema.extrautils2.backend.IXUItem;
  import com.rwtema.extrautils2.backend.model.*;
-@@ -70,7 +71,7 @@
+@@ -70,7 +70,7 @@
  		super(material);
  		EventHandlerSword handler = new EventHandlerSword(this);
  		MinecraftForge.EVENT_BUS.register(handler);
@@ -17,7 +18,66 @@
  		setMaxStackSize(1);
  		this.setMaxDamage(0);
  	}
-@@ -502,6 +503,7 @@
+@@ -93,8 +93,22 @@
+ //		tooltip.add(Lang.translate("Cursed Sword"));
+ //	}
+ 
+-
+-	@Override
++    @Override
++    public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity entity)
++    {
++        if (player.world.isRemote || !(entity instanceof EntityPlayer)) {
++            return super.onLeftClickEntity(stack, player, entity);
++        }
++
++        EntityPlayer targetPlayer = (EntityPlayer) entity;
++        if (targetPlayer.capabilities.isCreativeMode) {
++            Multimap<String, AttributeModifier> multimap = stack.getAttributeModifiers(EntityEquipmentSlot.MAINHAND);
++            attack(stack, targetPlayer, multimap, godSlayingDamage, new DamageSourceDivine(player, true), player);
++        }
++        return super.onLeftClickEntity(stack, player, entity);
++    }
++
++    @Override
+ 	public boolean hitEntity(ItemStack stack, EntityLivingBase target, @Nonnull EntityLivingBase attacker) {
+ 		if (target == null || !target.canBeAttackedWithItem()) return false;
+ 		if (attacker.world.isRemote) return false;
+@@ -128,7 +142,7 @@
+ 	private void drainHealth(EntityLivingBase target) {
+ 		double l = 0;
+ 
+-		IAttributeInstance a = target.getAttributeMap().getAttributeInstanceByName(SharedMonsterAttributes.MAX_HEALTH.getName());
++		IAttributeInstance a = target.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
+ 
+ 		AttributeModifier attr = a.getModifier(soulDamageUUID);
+ 		if (attr != null) {
+@@ -140,9 +154,10 @@
+ 
+ 		if (l < -1) l = -1;
+ 
+-		Multimap<String, AttributeModifier> multimap = HashMultimap.create();
+-		multimap.put(SharedMonsterAttributes.MAX_HEALTH.getName(), new AttributeModifier(soulDamageUUID, "Soul Damage", l, 2));
+-		target.getAttributeMap().applyAttributeModifiers(multimap);
++        if (a.getModifier(soulDamageUUID) != null) {
++            a.removeModifier(soulDamageUUID);
++        }
++        a.applyModifier(new AttributeModifier(soulDamageUUID, "Soul Damage", l, 2));
+ 		if (l <= -1) {
+ 			target.attackEntityFrom(DamageSource.OUT_OF_WORLD, Float.MAX_VALUE);
+ 		}
+@@ -405,8 +420,8 @@
+ 			if (event.getEntity().world.isRemote)
+ 				return;
+ 
+-			if (MCTimer.serverTimer % (20 * 10) == 0) {
+-				IAttributeInstance a = event.getEntityLiving().getAttributeMap().getAttributeInstanceByName(SharedMonsterAttributes.MAX_HEALTH.getName());
++			if (event.getEntity().ticksExisted % (20 * 10) == 0) {
++				IAttributeInstance a = event.getEntityLiving().getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH);
+ 
+ 				AttributeModifier attr = a.getModifier(soulDamageUUID);
+ 				if (attr != null) {
+@@ -502,6 +517,7 @@
  
  		@SubscribeEvent
  		public void anvil(AnvilUpdateEvent event) {
@@ -25,7 +85,7 @@
  			ItemStack left = event.getLeft();
  			ItemStack right = event.getRight();
  			if (StackHelper.isNull(left) || left.getItem() != item || StackHelper.isNull(right))
-@@ -540,12 +542,12 @@
+@@ -540,12 +556,12 @@
  
  		@SubscribeEvent
  		public void playerLogin(PlayerEvent.PlayerRespawnEvent event) {

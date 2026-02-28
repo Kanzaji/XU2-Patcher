@@ -1,0 +1,29 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/utils/MCTimer.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/utils/MCTimer.java
+@@ -11,26 +11,11 @@
+ 	public static int frameTimer;
+ 	public static float renderTimer;
+ 	public static float renderPartialTickTime;
+-	public static int serverTimer;
+ 	public static float deltaTime = 1;
+ 	private static long lastServerTickTime = -1;
+ 
+ 	static {
+ 		MinecraftForge.EVENT_BUS.register(new MCTimer());
+-	}
+-
+-	@SubscribeEvent
+-	@SideOnly(Side.CLIENT)
+-	public void serverTick(TickEvent.ServerTickEvent event) {
+-		if (event.phase != TickEvent.Phase.START) {
+-			return;
+-		}
+-		serverTimer++;
+-//
+-//		if (lastServerTickTime != -1) {
+-//lastServerTickTime = MinecraftServer.getCurrentTimeMillis();
+-//		} else
+-//			lastServerTickTime = MinecraftServer.getCurrentTimeMillis();
+ 	}
+ 
+ 	@SubscribeEvent
