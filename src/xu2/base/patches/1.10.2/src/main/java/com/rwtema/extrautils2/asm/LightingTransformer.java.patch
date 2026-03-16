@@ -1,0 +1,7 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/asm/LightingTransformer.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/asm/LightingTransformer.java
+@@ -182,4 +182,3 @@
+ 		return false;
+ 	}
+ }
+-

@@ -15,21 +15,19 @@ plugins {
 evaluationDependsOn(":XU2-Base")
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 
-val mappingsChannel: String by project
-val mappingsVersion: String by project
-val versionJEI: String by project
-val versionForge: String by project
+val mappingsChannel:    String by project
+val mappingsVersion:    String by project
+val versionJEI:         String by project
+val versionForge:       String by project
 
-val patchedJar: File = File(buildDir, "applyProjectPatches/output.jar")
-val patchesDir: File = File(projectDir, "patches")
+val patchedJar: File = buildDir.resolve("applyProjectPatches/output.jar")
+val patchesDir: File = projectDir.resolve("patches")
 
-val taskGroup: String = "xu2 patcher ~ patched"
-val XU2Base: Project = project(":XU2-Base")
-val baseSource: File = File(XU2Base.projectDir, "src")
-val src: File = File(projectDir, "src")
-val libs: File = File(buildDir, "libs")
-
-val shade: Configuration by configurations.creating
+val taskGroup:  String = "xu2 patcher ~ patched"
+val XU2Base:    Project = project(":XU2-Base")
+val baseSource: File = XU2Base.projectDir.resolve("src")
+val src:        File = projectDir.resolve("src")
+val libs:       File = buildDir.resolve("libs")
 
 fancyGradle {
     patches {
@@ -62,7 +60,7 @@ tasks {
     // Source related
     register<Copy>("Copy Source") {
         group = taskGroup
-        if (!File(baseSource, "build.gradle").exists()) dependsOn(XU2Base.tasks.getByName("Setup Base Source"))
+        if (!baseSource.resolve("build.gradle").exists()) dependsOn(XU2Base.tasks.getByName("Setup Base Source"))
         from(baseSource)
         filteringCharset = "UTF-8"
         into(src)
@@ -70,7 +68,7 @@ tasks {
 
     register<ApplyPatches>("Apply Project Patches") {
         group = taskGroup
-        val baseSourceJar = XU2Base.tasks.getByName<Jar>("Source Jar ~ Full (Base)")
+        val baseSourceJar = XU2Base.tasks.getByName<Zip>("Source Jar ~ Full (Base)")
         dependsOn(baseSourceJar)
 
         base.set(baseSourceJar.archiveFile.get().asFile)
@@ -112,10 +110,9 @@ tasks {
         archiveClassifier.set("sources")
         archiveBaseName.set("XU2-Project")
         from(src) {
-            include("**/*.java")
+            include("**")
             exclude("**/gradle")
             exclude("**/.gradle")
-            exclude("**/META-INF")
             exclude("**/build")
             exclude("**/run")
         }
@@ -164,7 +161,7 @@ tasks {
     register<GeneratePatches>("Generate Patches ~ Project") {
         group = taskGroup
 
-        val baseSourceJar = XU2Base.tasks.getByName<Jar>("Source Jar ~ Full (Base)")
+        val baseSourceJar = XU2Base.tasks.getByName<Zip>("Source Jar ~ Full (Base)")
         val sourceJar = getByName<Jar>("Source Jar ~ Full")
 
         dependsOn(baseSourceJar)
@@ -182,9 +179,9 @@ tasks {
         dependsOn(XU2Base.tasks.getByName("Source Jar ~ 1.12 (Base)"))
         dependsOn(getByName("Source Jar ~ 1.12"))
 
-        base.set(File(XU2Base.buildDir, "libs/1.12/ExtraUtils2-Sources.jar"))
-        modified.set(File(libs, "1.12/ExtraUtils2-Sources.jar"))
-        output.set(File(patchesDir, "1.12"))
+        base.set(XU2Base.buildDir.resolve("libs/1.12/ExtraUtils2-Sources.jar"))
+        modified.set(libs.resolve("1.12/ExtraUtils2-Sources.jar"))
+        output.set(patchesDir.resolve("1.12"))
         isPrintSummary = true
     }
 
@@ -192,16 +189,6 @@ tasks {
         group = taskGroup
         configureBinPatchTask(this, "1.12")
     }
-
-//    register<GenerateBinPatches>("generateDevBinPatches") {
-//        val shadowJar = getByName<ShadowJar>("shadowJar")
-//        dependsOn(shadowJar)
-//        group = taskGroup
-//        cleanJar.set(ic2Dev.singleFile)
-//        dirtyJar.set(shadowJar.archiveFile.get().asFile)
-//        output.set(File(buildDir, "$name/patches/" + getPatchesDirectory() + "/ic2patches.pack.lzma"))
-//        configureBinPatchTask(this)
-//    }
 }
 
 fun configureBinPatchTask(task: GenerateBinPatches, version: String) {
@@ -211,10 +198,10 @@ fun configureBinPatchTask(task: GenerateBinPatches, version: String) {
     task.dependsOn(createMcpToSrg)
     task.dependsOn(baseJar)
     task.dependsOn(patchedJar)
-    task.patchSets.setFrom(File(patchesDir, version))
-    task.cleanJar.set(File(XU2Base.buildDir, "libs/$version/ExtraUtils2.jar"))
-    task.dirtyJar.set(File(project.buildDir, "libs/$version/ExtraUtils2.jar"))
-    task.output.set(File(rootDir, "src/main/generated/patches/1.12/patches.pack.lzma"))
+    task.patchSets.setFrom(patchesDir.resolve(version))
+    task.cleanJar.set(XU2Base.buildDir.resolve("libs/$version/ExtraUtils2.jar"))
+    task.dirtyJar.set(project.buildDir.resolve("libs/$version/ExtraUtils2.jar"))
+    task.output.set(rootDir.resolve("src/main/generated/patches/1.12/patches.pack.lzma"))
     task.srg.set(createMcpToSrg.output)
     task.args.set(listOf(
             "--output", "{output}",
@@ -227,8 +214,8 @@ fun configureBinPatchTask(task: GenerateBinPatches, version: String) {
 }
 
 fun buildSource(ver: String) {
-    val libs = File(src, "$ver/build/libs")
-    val final = File(buildDir, "libs/$ver")
+    val libs = src.resolve("$ver/build/libs")
+    val final = buildDir.resolve("libs/$ver")
     execSourceTask(":$ver:build")
 
     // If version changed, it is possible that additional jars will be created.
@@ -253,8 +240,8 @@ fun buildSource(ver: String) {
 }
 
 fun packageSource(ver: String) {
-    val libs = File(src, "$ver/build/libs")
-    val final = File(buildDir, "libs/$ver")
+    val libs = src.resolve("$ver/build/libs")
+    val final = buildDir.resolve("libs/$ver")
     execSourceTask(":$ver:sourceJar")
 
     final.mkdirs()
@@ -318,73 +305,86 @@ fun srcExists(): Boolean {
 
 // Only here so source code is possible to edit from the main project view. For better compatibility, open the Source project separately.
 subprojects {
-    if (project.name != "Source") {
-        apply(plugin="java-library")
-        apply(plugin="idea")
-        apply(plugin="net.minecraftforge.gradle")
+    //TODO: Add other than minecraft/Forge dependencies, from the manifest jsons for each version.
+    // This is gonna take a while lol.
+    if (project.name in listOf("1.10.2", "1.11", "1.12")) {
+        apply(plugin = "java-library")
+        apply(plugin = "idea")
+
+        // Inheritance gone!
+//        configurations.all {
+//            exclude(group = "net.minecraftforge", module = "forge")
+//        }
+
+        var forgeVer = "unknown"
 
         repositories {
-            maven { url = uri("https://files.minecraftforge.net/maven") }
             maven { url = uri("https://maven.thiakil.com") }
             maven { url = uri("https://dvs1.progwml6.com/files/maven") }
             maven { url = uri("https://maven.blamejared.com") }
         }
 
-        // Those dependencies are taken from the respective source subproject.
-        // Reference build.gradle files in those projects for more details
-        // Note: Including MC 1.12.2 here instead of proper versions due to FG5 not working with any other version for some reason?
-        if (project.name == "1.10.2") {
-            dependencies {
-                minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2860")
-                //minecraft(group = "net.minecraftforge", name = "forge", version = "1.10.2-12.18.3.2511")
-                compileOnly(group = "mezz.jei", name = "jei_1.10.2", version = "3.13.3.380")
-                compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.10.2-1.1.3.199")
-                compileOnly(group = "slimeknights", name = "TConstruct", version = "1.10.2-2.6.1.464")
-                compileOnly(rootProject)
-            }
-            minecraft { mappings("snapshot", "20170624-1.12") }
-            sourceSets {
-                main {
-                    java {
-                        srcDir("src/main/java")
-                        srcDir("src/compat/java")
-                        srcDir("src/compat111/java")
-                        srcDir ("src/api/java")
-                    }
-                    resources {
-                        srcDir ("src/main/resources")
-                        srcDir ("src/compat/resources")
+        // Why SWITCH is called WHEN in Kotlin ughr.
+        when (project.name) {
+            "1.10.2" -> {
+                forgeVer = "1.10.2"
+                dependencies {
+                    compileOnly(group = "mezz.jei", name = "jei_1.10.2", version = "3.13.3.380")
+                    compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.10.2-1.1.3.199")
+                    compileOnly(group = "slimeknights", name = "TConstruct", version = "1.10.2-2.6.1.464")
+                }
+
+                sourceSets {
+                    main {
+                        java {
+                            srcDir("src/main/java")
+                            srcDir("src/compat/java")
+                            srcDir("src/compat111/java")
+                            srcDir("src/api/java")
+                        }
+                        resources {
+                            srcDir("src/main/resources")
+                            srcDir("src/compat/resources")
+                        }
                     }
                 }
             }
+
+            "1.11" -> {
+                forgeVer = "1.11.2"
+                dependencies {
+                    compileOnly(group = "mezz.jei", name = "jei_1.11", version = "4.1.1.208")
+                    parent?.let { compileOnly(it.project("1.10.2")) }
+                }
+                sourceSets { main { java { srcDir("src/main/java") } } }
+            }
+
+            "1.12" -> {
+                forgeVer = "1.12.2"
+//                apply(plugin="net.minecraftforge.gradle")
+                dependencies {
+                    //minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2769")
+//                    minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2860")
+                    compileOnly(group = "CraftTweaker2", name = "CraftTweaker2-API", version = "4.1.9.6")
+                    compileOnly(group = "mezz.jei", name = "jei_1.12.2", version = "4.12.1.217")
+                    compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.12-1.3.1.22")
+                    compileOnly(group = "slimeknights", name = "TConstruct", version = "1.12-2.7.2.508")
+                    compileOnly(group = "com.azanor.baubles", name = "Baubles", version = "1.12-1.5.2")
+                    parent?.let { compileOnly(it.project("1.10.2")) }
+                }
+//                minecraft { mappings("snapshot", "20170624-1.12") }
+                sourceSets { main { java { srcDir("src/main/java") } } }
+            }
         }
 
-        if (project.name == "1.11") {
-            dependencies {
-                minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2860")
-                //minecraft(group = "net.minecraftforge", name = "forge", version = "1.11.2-13.20.1.2588")
-                compileOnly(group = "mezz.jei", name = "jei_1.11", version = "4.1.1.208")
-                parent?.let { compileOnly(it.project("1.10.2")) }
-                compileOnly(rootProject)
-            }
-            minecraft { mappings("snapshot", "20170624-1.12") }
-            sourceSets { main { java { srcDir("src/main/java") } } }
-        }
 
-        if (project.name == "1.12") {
-            dependencies {
-                //minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2769")
-                minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2860")
-                compileOnly(group = "CraftTweaker2", name = "CraftTweaker2-API", version = "4.1.9.6")
-                compileOnly(group = "mezz.jei", name = "jei_1.12.2", version = "4.12.1.217")
-                compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.12-1.3.1.22")
-                compileOnly(group = "slimeknights", name = "TConstruct", version = "1.12-2.7.2.508")
-                compileOnly(group = "com.azanor.baubles", name = "Baubles", version = "1.12-1.5.2")
-                parent?.let { compileOnly(it.project("1.10.2")) }
-                compileOnly(rootProject)
+        val forge = projectDir.resolve("../../../libs").resolve("Forge-${forgeVer}.jar")
+        dependencies {
+            if (forge.exists()) {
+                implementation(files(forge))
+            } else {
+                logger.warn("!! Forge JAR missing for XU2:${project.name} at: ${forge.absolutePath} | Did you execute Setup Base Source?")
             }
-            minecraft { mappings("snapshot", "20170624-1.12") }
-            sourceSets { main { java { srcDir("src/main/java") } } }
         }
     }
 }

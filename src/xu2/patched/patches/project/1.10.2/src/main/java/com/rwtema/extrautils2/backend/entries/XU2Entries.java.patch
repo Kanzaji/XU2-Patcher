@@ -1,6 +1,14 @@
 --- a/1.10.2/src/main/java/com/rwtema/extrautils2/backend/entries/XU2Entries.java
 +++ b/1.10.2/src/main/java/com/rwtema/extrautils2/backend/entries/XU2Entries.java
-@@ -65,9 +65,10 @@
+@@ -5,6 +5,7 @@
+ import com.google.common.collect.ImmutableMap;
+ import com.google.common.collect.ImmutableSet;
+ import com.google.common.collect.Lists;
++import com.kanzaji.xu2patcher.XU2PatcherConfig;
+ import com.rwtema.extrautils2.ExtraUtils2;
+ import com.rwtema.extrautils2.achievements.AchievementHelper;
+ import com.rwtema.extrautils2.api.machine.*;
+@@ -65,9 +66,10 @@
  import net.minecraft.inventory.ContainerWorkbench;
  import net.minecraft.item.EnumDyeColor;
  import net.minecraft.item.ItemStack;
@@ -12,7 +20,7 @@
  import net.minecraft.tileentity.TileEntity;
  import net.minecraft.util.EnumFacing;
  import net.minecraft.util.ResourceLocation;
-@@ -78,8 +79,6 @@
+@@ -78,8 +80,6 @@
  import net.minecraft.world.biome.Biome;
  import net.minecraft.world.chunk.Chunk;
  import net.minecraftforge.common.MinecraftForge;
@@ -21,7 +29,17 @@
  import net.minecraftforge.common.config.Configuration;
  import net.minecraftforge.oredict.OreDictionary;
  import org.apache.commons.lang3.tuple.Pair;
-@@ -933,16 +932,10 @@
+@@ -427,7 +427,8 @@
+ 	public static BlockClassEntry<BlockScreen> blockScreen = new BlockClassEntry<BlockScreen>(BlockScreen.class, TileScreen.class) {
+ 		@Override
+ 		public void loadAdditionalConfig(Configuration config) {
+-			BlockScreen.maxSize = 256 * 1024;
++			// Patch: Add option to change the maximum size of the BlockScreen image.
++			BlockScreen.maxSize = XU2PatcherConfig.get().maxImageSize > 0? XU2PatcherConfig.get().maxImageSize * 1024: -1;
+ 		}
+ 
+ 		@Override
+@@ -933,16 +934,10 @@
  		@Override
  		public void registerTypesAndRecipes() {
  			PotionType antiFlying = PotionsHelper.registerPotionType(new PotionEffect(value, 60 * 20));
@@ -40,7 +58,7 @@
  		}
  	};
  	public static PotionEntry<PotionSecondChance> potionAntiDeath = new PotionEntry<PotionSecondChance>("potion_second_chance", "Will save from death but only once.") {
-@@ -954,10 +947,7 @@
+@@ -954,10 +949,7 @@
  		@Override
  		public void registerTypesAndRecipes() {
  			PotionType antiDeath = PotionsHelper.registerPotionType(new PotionEffect(value, 2 * 60 * 20));
@@ -52,7 +70,7 @@
  		}
  	};
  	public static PotionEntry<PotionNapalm> potionGreekFire = new PotionEntry<PotionNapalm>("potion_greek_fire", "Creates a fire that cannot be extenguished") {
-@@ -965,14 +955,8 @@
+@@ -965,14 +957,8 @@
  		public void registerTypesAndRecipes() {
  			PotionType greekFire = PotionsHelper.registerPotionType(new PotionEffect(value, 2 * 60 * 20));
  			PotionType oily = PotionsHelper.newGenericPotion("Oily");
@@ -69,7 +87,7 @@
  		}
  
  		@Override
-@@ -984,11 +968,7 @@
+@@ -984,11 +970,7 @@
  		@Override
  		public void registerTypesAndRecipes() {
  			PotionType greekFire = PotionsHelper.registerPotionType(new PotionEffect(value, 30 * 20));
@@ -82,7 +100,7 @@
  		}
  
  		@Override
-@@ -1000,12 +980,7 @@
+@@ -1000,12 +982,7 @@
  		@Override
  		public void registerTypesAndRecipes() {
  			PotionType relapse = PotionsHelper.registerPotionType(new PotionEffect(value, 8 * 60 * 20));
@@ -96,7 +114,7 @@
  		}
  
  		@Override
-@@ -1022,14 +997,13 @@
+@@ -1022,14 +999,13 @@
  		@Override
  		public void registerTypesAndRecipes() {
  			PotionType love = PotionsHelper.registerPotionType(new PotionEffect(value, 10 * 20));
@@ -117,7 +135,7 @@
  		}
  	};
  	public static PotionEntry<PotionPurge> potionPurge = new PotionEntry<PotionPurge>("potion_Purge", null) {
-@@ -1041,12 +1015,7 @@
+@@ -1041,12 +1017,7 @@
  		@Override
  		public void registerTypesAndRecipes() {
  			PotionType Purge = PotionsHelper.registerPotionType(new PotionEffect(value));

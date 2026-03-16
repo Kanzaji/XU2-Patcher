@@ -1,0 +1,7 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/utils/client/GLState.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/utils/client/GLState.java
+@@ -62,4 +62,3 @@
+ 
+ 	}
+ }
+-

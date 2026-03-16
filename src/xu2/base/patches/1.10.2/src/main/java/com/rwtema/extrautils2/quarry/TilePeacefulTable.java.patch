@@ -1,0 +1,7 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/quarry/TilePeacefulTable.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/quarry/TilePeacefulTable.java
+@@ -123,4 +123,3 @@
+ 	}
+ 
+ }
+-

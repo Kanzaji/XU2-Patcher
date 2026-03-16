@@ -1,0 +1,7 @@
+--- a/1.10.2/src/main/resources/assets/extrautils2/blockstates/model_locations.txt
++++ b/1.10.2/src/main/resources/assets/extrautils2/blockstates/model_locations.txt
+@@ -738,4 +738,3 @@
+ 
+ # Magical Apple
+ models/item/magicapple.json
+-

@@ -1,0 +1,85 @@
+--- a/1.12/build.gradle
++++ b/1.12/build.gradle
+@@ -1,7 +1,7 @@
+ buildscript {
+     repositories {
+-        jcenter()
+-        maven { url = "http://files.minecraftforge.net/maven" }
++        mavenCentral()
++        maven { url = "https://files.minecraftforge.net/maven" }
+         maven {
+             name = "sonatype"
+             url = "https://oss.sonatype.org/content/repositories/snapshots/"
+@@ -20,11 +20,11 @@
+ apply plugin: 'net.minecraftforge.gradle.forge'
+ apply plugin: 'com.matthewprenger.cursegradle'
+ //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+-ext.priv = parseConfig(file('../1.10.2/private.properties'))
++ext.priv = parseConfig(file('../1.10.2/version.properties'))
+ ext.version_config = parseConfig(file('../1.10.2/version.properties'))
+ 
+ version = ext.version_config.version_no
+-group= "com.rwtema.extrautils2" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
++group= "com.rwtema.extrautils2" // https://maven.apache.org/guides/mini/guide-naming-conventions.html
+ archivesBaseName = "extrautils2-1.12"
+ 
+ 
+@@ -44,7 +44,12 @@
+ }
+ 
+ minecraft {
+-    version = "1.12.2-14.23.5.2769"
++    tasks {
++        "runClient" {
++            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
++        }
++    }
++    version = "1.12.2-14.23.5.2779"
+     runDir = "run"
+     
+     // the mappings can be changed at any time, and must be in the following format.
+@@ -75,8 +80,8 @@
+     //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+ 
+     // for more info...
+-    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+-    // http://www.gradle.org/docs/current/userguide/dependency_management.html
++    // https://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
++    // https://www.gradle.org/docs/current/userguide/dependency_management.html
+ 
+ }
+ 
+@@ -84,13 +89,13 @@
+ repositories {
+     maven {
+         name = "thiakil"
+-        url = "http://maven.thiakil.com"
+-    }
+-    maven {
+-        url "http://dvs1.progwml6.com/files/maven"
+-    }
+-    maven {
+-        url "http://maven.blamejared.com"
++        url = "https://maven.thiakil.com"
++    }
++    maven {
++        url "https://dvs1.progwml6.com/files/maven"
++    }
++    maven {
++        url "https://maven.blamejared.com"
+     }
+ }
+ 
+@@ -99,7 +104,11 @@
+     deobfCompile "CraftTweaker2:CraftTweaker2-API:4.1.9.6"
+     deobfCompile "mezz.jei:jei_1.12.2:4.12.1.217"
+     deobfCompile "slimeknights.mantle:Mantle:1.12-1.3.1.22"
+-    deobfCompile "slimeknights:TConstruct:1.12-2.7.2.508"
++    deobfCompile ("slimeknights:TConstruct:1.12-2.7.2.508")  {
++        exclude group: 'mezz.jei', module: 'jei_1.12'
++    }
++    runtime "curse.maven:railcraft-51195:3853491"
++    runtime name: "XU2-Patcher-api"
+     deobfCompile "com.azanor.baubles:Baubles:1.12-1.5.2"
+ }
+ 

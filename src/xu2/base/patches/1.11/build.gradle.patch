@@ -1,0 +1,68 @@
+--- a/1.11/build.gradle
++++ b/1.11/build.gradle
+@@ -1,7 +1,7 @@
+ buildscript {
+     repositories {
+-        jcenter()
+-        maven { url = "http://files.minecraftforge.net/maven" }
++        mavenCentral()
++        maven { url = "https://files.minecraftforge.net/maven" }
+         maven {
+             name = "sonatype"
+             url = "https://oss.sonatype.org/content/repositories/snapshots/"
+@@ -23,11 +23,11 @@
+ //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+ 
+ 
+-ext.priv = parseConfig(file('../1.10.2/private.properties'))
++ext.priv = parseConfig(file('../1.10.2/version.properties'))
+ ext.version_config = parseConfig(file('../1.10.2/version.properties'))
+ 
+ version = ext.version_config.version_no
+-group= "com.rwtema.extrautils2" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
++group= "com.rwtema.extrautils2" // https://maven.apache.org/guides/mini/guide-naming-conventions.html
+ archivesBaseName = "extrautils2-1.11.2"
+ 
+ 
+@@ -47,6 +47,11 @@
+ }
+ 
+ minecraft {
++    tasks {
++        "runClient" {
++            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
++        }
++    }
+     version = "1.11.2-13.20.1.2588"
+     runDir = "run"
+     mappings = "snapshot_20170624"
+@@ -56,12 +61,17 @@
+ 
+ 
+ minecraft {
++    tasks {
++        "runClient" {
++            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
++        }
++    }
+   useDepAts = true
+ }
+ 
+ repositories {
+     maven {
+-        url "http://dvs1.progwml6.com/files/maven"
++        url "https://dvs1.progwml6.com/files/maven"
+     }
+ }
+ 
+@@ -71,7 +81,9 @@
+ }
+ 
+ repositories {
+-    maven { url "http://maven.amadornes.com/" }
++    maven { url "https://maven.amadornes.com/" }
++    // Temporary mirror as maven.amadornes.com is down >.>
++    maven { url "https://modmaven.dev/"}
+ }
+ dependencies {
+     deobfCompile "MCMultiPart2:MCMultiPart-exp:2.0.0_17"

@@ -1,0 +1,57 @@
+--- a/1.10.2/build.gradle
++++ b/1.10.2/build.gradle
+@@ -1,7 +1,7 @@
+ buildscript {
+     repositories {
+-        jcenter()
+-        maven { url = "http://files.minecraftforge.net/maven" }
++        mavenCentral()
++        maven { url = "https://files.minecraftforge.net/maven" }
+         maven {
+             name = "sonatype"
+             url = "https://oss.sonatype.org/content/repositories/snapshots/"
+@@ -18,12 +18,12 @@
+ 
+ apply plugin: 'net.minecraftforge.gradle.forge'
+ 
+-ext.priv = parseConfig(file('../1.10.2/private.properties'))
++ext.priv = parseConfig(file('../1.10.2/version.properties'))
+ ext.version_config = parseConfig(file('../1.10.2/version.properties'))
+ 
+ version = ext.version_config.version_no
+ 
+-group= "com.rwtema.extrautils2" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
++group= "com.rwtema.extrautils2" // https://maven.apache.org/guides/mini/guide-naming-conventions.html
+ archivesBaseName = "extrautils2-1.10.2"
+ 
+ 
+@@ -38,6 +38,11 @@
+ 
+ 
+ minecraft {
++    tasks {
++        "runClient" {
++            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
++        }
++    }
+     version = "1.10.2-12.18.3.2511"
+     runDir = "run"
+     mappings = "snapshot_20170624"
+@@ -46,11 +51,16 @@
+ 
+ repositories {
+   maven {
+-    url "http://dvs1.progwml6.com/files/maven"
++    url "https://dvs1.progwml6.com/files/maven"
+   }
+ }
+ 
+ minecraft {
++    tasks {
++        "runClient" {
++            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
++        }
++    }
+   useDepAts = true
+ }
+ 

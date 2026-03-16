@@ -38,3 +38,6 @@ run
 # XU2 Source (To download, can't include it)
 src/xu2/base/src
 src/xu2/patched/src
+
+# Minecraft Sources (Duh, can't include that even more xD)
+src/xu2/libs

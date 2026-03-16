@@ -1,0 +1,7 @@
+--- a/1.10.2/src/main/java/com/rwtema/extrautils2/itemhandler/ConcatFixedLengthSingleSlot.java
++++ b/1.10.2/src/main/java/com/rwtema/extrautils2/itemhandler/ConcatFixedLengthSingleSlot.java
+@@ -34,4 +34,3 @@
+ 		return slotHandlers[slot].extractItem(0, amount, simulate);
+ 	}
+ }
+-
