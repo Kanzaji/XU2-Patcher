@@ -305,16 +305,9 @@ fun srcExists(): Boolean {
 
 // Only here so source code is possible to edit from the main project view. For better compatibility, open the Source project separately.
 subprojects {
-    //TODO: Add other than minecraft/Forge dependencies, from the manifest jsons for each version.
-    // This is gonna take a while lol.
     if (project.name in listOf("1.10.2", "1.11", "1.12")) {
         apply(plugin = "java-library")
         apply(plugin = "idea")
-
-        // Inheritance gone!
-//        configurations.all {
-//            exclude(group = "net.minecraftforge", module = "forge")
-//        }
 
         var forgeVer = "unknown"
 
@@ -361,10 +354,7 @@ subprojects {
 
             "1.12" -> {
                 forgeVer = "1.12.2"
-//                apply(plugin="net.minecraftforge.gradle")
                 dependencies {
-                    //minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2769")
-//                    minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2860")
                     compileOnly(group = "CraftTweaker2", name = "CraftTweaker2-API", version = "4.1.9.6")
                     compileOnly(group = "mezz.jei", name = "jei_1.12.2", version = "4.12.1.217")
                     compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.12-1.3.1.22")
@@ -372,18 +362,25 @@ subprojects {
                     compileOnly(group = "com.azanor.baubles", name = "Baubles", version = "1.12-1.5.2")
                     parent?.let { compileOnly(it.project("1.10.2")) }
                 }
-//                minecraft { mappings("snapshot", "20170624-1.12") }
                 sourceSets { main { java { srcDir("src/main/java") } } }
             }
         }
 
 
-        val forge = projectDir.resolve("../../../libs").resolve("Forge-${forgeVer}.jar")
+        val libs = projectDir.resolve("../../../libs");
+        val forge = libs.resolve("Forge-${forgeVer}.jar")
+        val jars = libs.resolve(forgeVer)
         dependencies {
+            if (jars.exists() && jars.listFiles()?.isNotEmpty() == true) {
+                implementation(fileTree(jars) { include("*.jar") })
+            } else {
+                logger.warn("!! Missing libraries for minecraft $forgeVer! | Did you execute \"Setup Base Source\"?")
+            }
+
             if (forge.exists()) {
                 implementation(files(forge))
             } else {
-                logger.warn("!! Forge JAR missing for XU2:${project.name} at: ${forge.absolutePath} | Did you execute Setup Base Source?")
+                logger.warn("!! Forge JAR missing for XU2:${project.name} at: ${forge.absolutePath} | Did you execute \"Setup Base Source\"?")
             }
         }
     }

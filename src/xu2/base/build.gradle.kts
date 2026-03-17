@@ -1,8 +1,10 @@
 import codechicken.diffpatch.util.PatchMode
 import de.undercouch.gradle.tasks.download.Download
+import groovy.json.JsonSlurper
 import net.minecraftforge.gradle.patcher.tasks.ApplyPatches
 import net.minecraftforge.gradle.patcher.tasks.GeneratePatches
 import org.gradle.kotlin.dsl.register
+import java.io.FileNotFoundException
 
 plugins {
     java
@@ -83,7 +85,15 @@ tasks {
     register<Copy>("Setup Base Source") {
         group = taskGroup;
         val patchedSource = getByName<ApplyPatches>("Patch Source")
+        val libs = projectDir.resolve("../libs")
         dependsOn(patchedSource)
+        outputs.dir(libs)
+        outputs.dir(src)
+
+        // 2. Force re-run if the directory is missing or empty
+        outputs.upToDateWhen {
+            libs.exists() && src.exists() && libs.listFiles()?.isNotEmpty() ?: false
+        }
 
         from(zipTree(patchedSource.output))
         into(src)
@@ -91,10 +101,10 @@ tasks {
         doLast {
             // Using own Gradle 3.0 wrapper to make everything work, as XU2 project is cursed in structure,
             // use execSourceTask func for command execution on the source code.
-            execSourceTask("--refresh-dependencies")
-            execSourceTask(":1.10.2:setupDecompWorkspace")
-            execSourceTask(":1.11:setupDecompWorkspace")
-            execSourceTask(":1.12:setupDecompWorkspace")
+//            execSourceTask("--refresh-dependencies")
+//            execSourceTask(":1.10.2:setupDecompWorkspace")
+//            execSourceTask(":1.11:setupDecompWorkspace")
+//            execSourceTask(":1.12:setupDecompWorkspace")
 
             // Strips new lines at the end of the source files, as those cause random patches to generate in the patched project.
             // This will generate a lot of patches in the base, but we don't really care!
@@ -109,10 +119,13 @@ tasks {
             // Removes random test file that for some reason is included in the source jar
             src.resolve("1.10.2/src/main/resources/assets/test").delete()
             // Remove the META-INF from the source, how the heck did it get here I have no idea.
-            src.resolve("META-INF").delete()
+            src.resolve("META-INF").deleteRecursively()
 
             // Get the Minecraft/Forge Jars to the libs.
-            val libs = projectDir.resolve("../libs")
+            // FG5 does not support anything older than the latest versions of MC 1.12.2,
+            // requiring the wrapper project to use jars generated and downloaded by the old FG2 setup of XU2.
+            // This is the most elegant solution for full IDE support in the project without having to run the original project in the IDE.
+            if (libs.exists()) libs.deleteRecursively()
             src.resolve("1.10.2/.gradle/minecraft/forgeSrc-1.10.2-12.18.3.2511-PROJECT(1.10.2).jar")
                 .copyTo(libs.resolve("Forge-1.10.2.jar"))
             src.resolve("1.10.2/.gradle/minecraft/forgeSrc-1.10.2-12.18.3.2511-PROJECT(1.10.2)-sources.jar")
@@ -125,6 +138,20 @@ tasks {
                 .copyTo(libs.resolve("Forge-1.12.2.jar"))
             src.resolve("1.12/.gradle/minecraft/forgeSrc-1.12.2-14.23.5.2779-PROJECT(1.12)-sources.jar")
                 .copyTo(libs.resolve("Forge-1.12.2-Sources.jar"))
+
+            // Get the libraries jars to the libs.
+            // Copying them to the project because gradle caches can be cleared or invalidated.
+            // We just can't be sure lol.
+            val osProp = System.getProperty("os.name").toLowerCase();
+            val os = when {
+                osProp.contains("win") -> "windows"
+                osProp.contains("mac") -> "osx"
+                else -> "linux"
+            }
+            val gradleCache = File(System.getProperty("user.home")).resolve(".gradle/caches")
+            println("Gradle caches for os: \"$os\" located at: \"$gradleCache\"");
+
+            for (mc in listOf("1.10.2", "1.11.2", "1.12.2")) copyLibs(libs, gradleCache, mc, os)
         }
     }
 
@@ -191,6 +218,61 @@ tasks {
     }
 }
 
+fun copyLibs(libs: File, gradleCache: File, ver: String, devOS: String) {
+    val manifestFile = libs.resolve("$ver.json")
+    val jarsCache = gradleCache.resolve("modules-2/files-2.1")
+
+    gradleCache.resolve("minecraft/versionJsons/$ver.json").copyTo(manifestFile)
+
+    ((JsonSlurper().parse(manifestFile) as Map<*, *>)["libraries"] as List<Map<*, *>>).forEach { lib ->
+        val data = (lib["name"] as String).split(":")
+        var jar = jarsCache.resolve("${data[0]}/${data[1]}/${data[2]}").walkTopDown().find { it.extension == "jar" && it.name.equals("${data[1]}-${data[2]}.jar") }
+
+        if (jar == null) {
+            // Jar not found, check if lib is allowed.
+            if (lib["rules"] != null) {
+                val rules = lib["rules"] as List<Map<*,*>>
+                for (rule in rules) {
+                    if (rule["os"] == null) continue
+                    val os = rule["os"] as Map<*,*>
+                    if (os.isEmpty()) continue
+                    when (rule["action"]) {
+                        "allow" -> {
+                            if (os["name"] != devOS) {
+                                logger.warn("Skipping library: ${lib["name"]} for version: $ver because it's not allowed on your operating system.")
+                                return@forEach
+                            }
+                        }
+                        "disallow" -> {
+                            if (os["name"] == devOS) {
+                                logger.warn("Skipping library: ${lib["name"]} for version: $ver because it's not allowed on your operating system.")
+                                return@forEach
+                            }
+                        }
+                    }
+                }
+            }
+
+            // If lib allowed, check for natives.
+            if (lib["natives"] != null) {
+                val natives = lib["natives"] as Map<*,*>
+                if (natives[devOS] != null)
+                    jar = jarsCache.resolve("${data[0]}/${data[1]}/${data[2]}").walkTopDown().find { it.extension == "jar" && it.name.equals("${data[1]}-${data[2]}-${natives[devOS]}.jar")}
+            }
+
+            if (jar == null) throw FileNotFoundException("Can't find library: ${lib["name"]} in gradle caches for Minecraft $ver!")
+            println("Using native version of library: ${lib["name"]} for os: $devOS")
+        }
+        val dst = libs.resolve("$ver/${data[1]}-${data[2]}.jar");
+        if (dst.exists()) {
+            logger.warn("Duplicate library: ${lib["name"]} for version: $ver")
+            return@forEach
+        }
+        jar.copyTo(dst)
+    }
+    println("Copied libraries for Minecraft (Forge) $ver");
+}
+
 fun buildSource(ver: String) {
     val libs = src.resolve("$ver/build/libs")
     val final = buildDir.resolve("libs/$ver")
@@ -246,14 +328,6 @@ repositories {
     }
 }
 
-//minecraft {
-//    mappings(mappingsChannel, mappingsVersion)
-//}
-//
-//dependencies {
-//    minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-${versionForge}")
-//}
-
 /**
  * Used to execute tasks with use of the Gradle Wrapper from the XU2 Project.
  * Note: Yes I know this is cursed, Yes I tried a lot of stuff to make this work.
@@ -282,7 +356,7 @@ fun execSourceTask(task: String) {
     val errorReader = process.errorStream.bufferedReader()
 
     Thread { reader.lines().forEach { println(it) } }.start()
-    Thread { errorReader.lines().forEach { System.err.println(it) } }.start()
+    Thread { errorReader.lines().forEach { logger.error(it) } }.start()
 
     process.waitFor()
 
@@ -302,11 +376,6 @@ subprojects {
     if (project.name in listOf("1.10.2", "1.11", "1.12")) {
         apply(plugin = "java-library")
         apply(plugin = "idea")
-
-        // Inheritance gone!
-//        configurations.all {
-//            exclude(group = "net.minecraftforge", module = "forge")
-//        }
 
         var forgeVer = "unknown"
 
@@ -353,10 +422,7 @@ subprojects {
 
             "1.12" -> {
                 forgeVer = "1.12.2"
-//                apply(plugin="net.minecraftforge.gradle")
                 dependencies {
-                    //minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2769")
-//                    minecraft(group = "net.minecraftforge", name = "forge", version = "1.12.2-14.23.5.2860")
                     compileOnly(group = "CraftTweaker2", name = "CraftTweaker2-API", version = "4.1.9.6")
                     compileOnly(group = "mezz.jei", name = "jei_1.12.2", version = "4.12.1.217")
                     compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.12-1.3.1.22")
@@ -364,18 +430,25 @@ subprojects {
                     compileOnly(group = "com.azanor.baubles", name = "Baubles", version = "1.12-1.5.2")
                     parent?.let { compileOnly(it.project("1.10.2")) }
                 }
-//                minecraft { mappings("snapshot", "20170624-1.12") }
                 sourceSets { main { java { srcDir("src/main/java") } } }
             }
         }
 
 
-        val forge = projectDir.resolve("../../../libs").resolve("Forge-${forgeVer}.jar")
+        val libs = projectDir.resolve("../../../libs");
+        val forge = libs.resolve("Forge-${forgeVer}.jar")
+        val jars = libs.resolve(forgeVer)
         dependencies {
+            if (jars.exists() && jars.listFiles()?.isNotEmpty() == true) {
+                implementation(fileTree(jars) { include("*.jar") })
+            } else {
+                logger.warn("!! Missing libraries for minecraft $forgeVer! | Did you execute \"Setup Base Source\"?")
+            }
+
             if (forge.exists()) {
                 implementation(files(forge))
             } else {
-                logger.warn("!! Forge JAR missing for XU2:${project.name} at: ${forge.absolutePath} | Did you execute Setup Base Source?")
+                logger.warn("!! Forge JAR missing for XU2:${project.name} at: ${forge.absolutePath} | Did you execute \"Setup Base Source\"?")
             }
         }
     }
