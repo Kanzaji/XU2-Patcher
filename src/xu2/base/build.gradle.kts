@@ -90,7 +90,6 @@ tasks {
         outputs.dir(libs)
         outputs.dir(src)
 
-        // 2. Force re-run if the directory is missing or empty
         outputs.upToDateWhen {
             libs.exists() && src.exists() && libs.listFiles()?.isNotEmpty() ?: false
         }
@@ -101,10 +100,10 @@ tasks {
         doLast {
             // Using own Gradle 3.0 wrapper to make everything work, as XU2 project is cursed in structure,
             // use execSourceTask func for command execution on the source code.
-//            execSourceTask("--refresh-dependencies")
-//            execSourceTask(":1.10.2:setupDecompWorkspace")
-//            execSourceTask(":1.11:setupDecompWorkspace")
-//            execSourceTask(":1.12:setupDecompWorkspace")
+            execSourceTask("--refresh-dependencies")
+            execSourceTask(":1.10.2:setupDecompWorkspace")
+            execSourceTask(":1.11:setupDecompWorkspace")
+            execSourceTask(":1.12:setupDecompWorkspace")
 
             // Strips new lines at the end of the source files, as those cause random patches to generate in the patched project.
             // This will generate a lot of patches in the base, but we don't really care!
