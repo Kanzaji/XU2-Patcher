@@ -77,6 +77,32 @@ tasks {
         output.set(patchedJar)
         patchMode.set(PatchMode.OFFSET)
         isPrintSummary = true
+
+        doLast {
+            // Fix corrupted assets (No idea why ApplyPatches breaks them :P)
+            val tempDir = buildDir.resolve("tmp/asset-fix")
+            tempDir.deleteRecursively()
+            tempDir.mkdirs()
+
+            copy {
+                from(zipTree(patchedJar))
+                into(tempDir)
+            }
+
+            copy {
+                from(zipTree(base)) {
+                    include("**/*.png", "**/*.obj", "**/*.ico", "**/*.bin")
+                }
+                into(tempDir)
+                duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            }
+
+            ant.withGroovyBuilder {
+                "zip"("destfile" to patchedJar, "basedir" to tempDir)
+            }
+
+            tempDir.deleteRecursively()
+        }
     }
 
     register<Copy>("Setup Patched Source") {
@@ -195,6 +221,7 @@ tasks {
         group = taskGroup
         doFirst {
             execSourceTask("clean")
+            execSourceTask("--stop")
         }
     }
 }

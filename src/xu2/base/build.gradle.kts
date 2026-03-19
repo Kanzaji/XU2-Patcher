@@ -74,12 +74,39 @@ tasks {
         val baseSourceJar = getByName<Zip>("Flatten Source")
         dependsOn(baseSourceJar)
 
+        val out = buildDir.resolve("sources/XU2-Patched.zip")
         base.set(baseSourceJar.archiveFile.get().asFile)
         patches.set(patchesDir)
         rejects.set(buildDir.resolve("sources/Rejected-Patches.zip"))
-        output.set(buildDir.resolve("sources/XU2-Patched.zip"))
+        output.set(out)
         patchMode.set(PatchMode.OFFSET)
         isPrintSummary = true
+
+        doLast {
+            // Fix corrupted assets (No idea why ApplyPatches breaks them :P)
+            val tempDir = buildDir.resolve("tmp/asset-fix")
+            tempDir.deleteRecursively()
+            tempDir.mkdirs()
+
+            copy {
+                from(zipTree(out))
+                into(tempDir)
+            }
+
+            copy {
+                from(zipTree(base)) {
+                    include("**/*.png", "**/*.obj", "**/*.ico", "**/*.bin")
+                }
+                into(tempDir)
+                duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            }
+
+            ant.withGroovyBuilder {
+                "zip"("destfile" to out, "basedir" to tempDir)
+            }
+
+            tempDir.deleteRecursively()
+        }
     }
 
     register<Copy>("Setup Base Source") {
@@ -227,6 +254,7 @@ tasks {
         group = taskGroup
         doFirst {
             execSourceTask("clean")
+            execSourceTask("--stop")
         }
     }
 }
