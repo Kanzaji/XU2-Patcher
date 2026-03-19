@@ -25,7 +25,12 @@
  archivesBaseName = "extrautils2-1.10.2"
  
  
-@@ -46,7 +46,7 @@
+@@ -42,11 +42,12 @@
+     runDir = "run"
+     mappings = "snapshot_20170624"
+     makeObfSourceJar = false
++    at('src/compat/resources/META-INF/extrautils2_at.cfg')
+ }
  
  repositories {
    maven {

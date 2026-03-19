@@ -190,6 +190,13 @@ tasks {
         group = taskGroup
         configureBinPatchTask(this, "1.12")
     }
+
+    register("Cleanup ~ Patched") {
+        group = taskGroup
+        doFirst {
+            execSourceTask("clean")
+        }
+    }
 }
 
 fun configureBinPatchTask(task: GenerateBinPatches, version: String) {
@@ -214,6 +221,7 @@ fun configureBinPatchTask(task: GenerateBinPatches, version: String) {
     ))
 }
 
+//TODO: Rework build/package sources. We can just name files with version suffix????
 fun buildSource(ver: String) {
     val libs = src.resolve("$ver/build/libs")
     val final = buildDir.resolve("libs/$ver")
@@ -269,10 +277,15 @@ fun execSourceTask(task: String) {
     val os = System.getProperty("os.name").toLowerCase()
     val javaHome = System.getProperty("java.home")
 
+    if (!srcExists()) {
+        println("Skipping execution of \"$task\" on the XU2 Source, as it doesn't exist!")
+        return
+    }
+
     println("Using Java at: $javaHome to execute task \"$task\" on the XU2 Source...")
 
 
-    val pb = if (os.contains("windows")) {
+    val pb = if (os.contains("win")) {
         ProcessBuilder(File(projectDir,"../gradle-3.0-wrapper/gradlew.bat").absolutePath, task)
     } else {
         //TODO: Test if this works on SH / Linux
@@ -289,7 +302,7 @@ fun execSourceTask(task: String) {
     val errorReader = process.errorStream.bufferedReader()
 
     Thread { reader.lines().forEach { println(it) } }.start()
-    Thread { errorReader.lines().forEach { System.err.println(it) } }.start()
+    Thread { errorReader.lines().forEach { logger.error(it) } }.start()
 
     process.waitFor()
 

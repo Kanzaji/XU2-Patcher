@@ -155,6 +155,23 @@ tasks {
         group = taskGroup
         dependsOn(project(":XU2-Patched").tasks.getByName<Copy>("Setup Patched Source"))
     }
+
+    register<Delete>("Remove XU2 Source") {
+        group = taskGroup
+
+        val base    = project(":XU2-Base")
+        val patched = project(":XU2-Patched")
+
+        dependsOn(base.tasks.getByName("Cleanup ~ Base"))
+        dependsOn(patched.tasks.getByName("Cleanup ~ Patched"))
+
+        delete = setOf(
+            base.projectDir.resolve("src"),
+            patched.projectDir.resolve("src"),
+            projectDir.resolve("src/xu2/libs")
+        )
+    }
+
 //
 //    whenTaskAdded {
 //        if (name.startsWith("prepareRun")) {

@@ -24,7 +24,15 @@
  archivesBaseName = "extrautils2-1.11.2"
  
  
-@@ -61,7 +61,7 @@
+@@ -51,6 +51,7 @@
+     runDir = "run"
+     mappings = "snapshot_20170624"
+     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
++    at('src/main/resources/META-INF/extrautils2_at.cfg')
+ }
+ 
+ 
+@@ -61,7 +62,7 @@
  
  repositories {
      maven {
@@ -33,7 +41,7 @@
      }
  }
  
-@@ -71,7 +71,9 @@
+@@ -71,7 +72,9 @@
  }
  
  repositories {
