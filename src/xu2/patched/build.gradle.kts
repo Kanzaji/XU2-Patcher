@@ -366,6 +366,7 @@ subprojects {
                     compileOnly(group = "mezz.jei", name = "jei_1.10.2", version = "3.13.3.380")
                     compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.10.2-1.1.3.199")
                     compileOnly(group = "slimeknights", name = "TConstruct", version = "1.10.2-2.6.1.464")
+                    compileOnly(rootProject)
                 }
 
                 sourceSets {
@@ -389,6 +390,7 @@ subprojects {
                 dependencies {
                     compileOnly(group = "mezz.jei", name = "jei_1.11", version = "4.1.1.208")
                     parent?.let { compileOnly(it.project("1.10.2")) }
+                    compileOnly(rootProject)
                 }
                 sourceSets { main { java { srcDir("src/main/java") } } }
             }
@@ -401,6 +403,7 @@ subprojects {
                     compileOnly(group = "slimeknights.mantle", name = "Mantle", version = "1.12-1.3.1.22")
                     compileOnly(group = "slimeknights", name = "TConstruct", version = "1.12-2.7.2.508")
                     compileOnly(group = "com.azanor.baubles", name = "Baubles", version = "1.12-1.5.2")
+                    compileOnly(rootProject)
                     parent?.let { compileOnly(it.project("1.10.2")) }
                 }
                 sourceSets { main { java { srcDir("src/main/java") } } }

@@ -28,7 +28,7 @@ public class XU2PatcherConfig extends net.minecraftforge.common.config.Configura
 
         super(new File("config/" + file + ".cfg"));
 
-        this.maxImageSize = this.getInt("maxImageSize", "patches", 1024, -1, Integer.MAX_VALUE,
+        maxImageSize = this.getInt("maxImageSize", "patches", 2048, -1, Integer.MAX_VALUE,
             "Determines the maximum size of the image from Imgur for the Screens. Extra Utilities 2 by default has limit of 256Kb. Set to -1 to disable the limit.");
 
         // Special credits to Darkhax for the original solution of fixing those, with <a href="https://github.com/Darkhax-Minecraft/NoTemaStahp">NoTemaStahp</a> mod!

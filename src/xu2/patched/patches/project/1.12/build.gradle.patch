@@ -32,7 +32,11 @@
      version = "1.12.2-14.23.5.2769"
      runDir = "run"
      
-@@ -89,6 +103,15 @@
+@@ -86,13 +100,22 @@
+     maven {
+         name = "thiakil"
+         url = "https://maven.thiakil.com"
+-    }
      maven {
          url "https://dvs1.progwml6.com/files/maven"
      }
@@ -48,7 +52,11 @@
      maven {
          url "https://maven.blamejared.com"
      }
-@@ -102,6 +125,9 @@
++    }
+ }
+ 
+ 
+@@ -103,6 +126,9 @@
      deobfCompile ("slimeknights:TConstruct:1.12-2.7.2.508")  {
          exclude group: 'mezz.jei', module: 'jei_1.12'
      }
@@ -58,7 +66,7 @@
      deobfCompile "com.azanor.baubles:Baubles:1.12-1.5.2"
  }
  
-@@ -172,6 +198,8 @@
+@@ -173,6 +199,8 @@
      }
      api{
          java {

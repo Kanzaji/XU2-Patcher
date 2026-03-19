@@ -12,9 +12,11 @@
      version = "1.11.2-13.20.1.2588"
      runDir = "run"
      mappings = "snapshot_20170624"
-@@ -56,6 +61,11 @@
+@@ -55,15 +60,29 @@
+ }
  
  
+-
  minecraft {
 +    tasks {
 +        "runClient" {
@@ -24,7 +26,8 @@
    useDepAts = true
  }
  
-@@ -63,6 +73,15 @@
++
+ repositories {
      maven {
          url "https://dvs1.progwml6.com/files/maven"
      }
@@ -40,7 +43,7 @@
  }
  
  
-@@ -147,6 +166,8 @@
+@@ -148,6 +167,8 @@
      }
      api{
          java {

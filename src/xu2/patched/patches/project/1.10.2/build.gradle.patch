@@ -12,7 +12,7 @@
      version = "1.10.2-12.18.3.2511"
      runDir = "run"
      mappings = "snapshot_20170624"
-@@ -51,6 +56,11 @@
+@@ -52,6 +57,11 @@
  }
  
  minecraft {
@@ -24,7 +24,7 @@
    useDepAts = true
  }
  
-@@ -137,6 +147,8 @@
+@@ -138,6 +148,8 @@
      }
      api{
          java {

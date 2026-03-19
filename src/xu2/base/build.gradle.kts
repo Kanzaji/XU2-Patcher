@@ -148,6 +148,9 @@ tasks {
                 }
             }
 
+            // Removes random test file that for some reason is included in the source jar
+            src.resolve("1.10.2/src/main/resources/assets/test").delete()
+
             // Get the Minecraft/Forge Jars to the libs.
             // FG5 does not support anything older than the latest versions of MC 1.12.2,
             // requiring the wrapper project to use jars generated and downloaded by the old FG2 setup of XU2.
