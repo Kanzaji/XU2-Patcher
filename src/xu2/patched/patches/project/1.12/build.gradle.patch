@@ -1,0 +1,69 @@
+--- a/1.12/build.gradle
++++ b/1.12/build.gradle
+@@ -27,8 +27,17 @@
+ group= "com.rwtema.extrautils2" // https://maven.apache.org/guides/mini/guide-naming-conventions.html
+ archivesBaseName = "extrautils2-1.12"
+ 
+-
+-
++tasks.getByName("getAssets").configure {
++    enabled = false;
++}
++
++tasks.getByName("getAssetIndex").configure {
++    enabled = false;
++}
++
++tasks.getByName("runClient").configure {
++    outputs.upToDateWhen {false}
++}
+ 
+ def parseConfig(File config) {
+     config.withReader {
+@@ -44,6 +53,11 @@
+ }
+ 
+ minecraft {
++    tasks {
++        "runClient" {
++            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
++        }
++    }
+     version = "1.12.2-14.23.5.2769"
+     runDir = "run"
+     
+@@ -89,6 +103,15 @@
+     maven {
+         url "https://dvs1.progwml6.com/files/maven"
+     }
++    flatDir {
++        dirs '../../../../../build/libs'
++    }
++    maven {
++        url "https://cursemaven.com"
++    }
++    maven {
++        url "https://maven.cil.li/"
++    }
+     maven {
+         url "https://maven.blamejared.com"
+     }
+@@ -102,6 +125,9 @@
+     deobfCompile ("slimeknights:TConstruct:1.12-2.7.2.508")  {
+         exclude group: 'mezz.jei', module: 'jei_1.12'
+     }
++    // Requires Forge 2779!
++//    runtime "curse.maven:railcraft-51195:3853491"
++    runtime name: "XU2-Patcher-api"
+     deobfCompile "com.azanor.baubles:Baubles:1.12-1.5.2"
+ }
+ 
+@@ -172,6 +198,8 @@
+     }
+     api{
+         java {
++            // XU2-Patcher
++            srcDir '../../../../main/api'
+             srcDir '../1.10.2/src/api/java'
+         }
+     }

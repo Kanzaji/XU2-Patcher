@@ -24,21 +24,7 @@
  archivesBaseName = "extrautils2-1.12"
  
  
-@@ -44,7 +44,12 @@
- }
- 
- minecraft {
--    version = "1.12.2-14.23.5.2769"
-+    tasks {
-+        "runClient" {
-+            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
-+        }
-+    }
-+    version = "1.12.2-14.23.5.2779"
-     runDir = "run"
-     
-     // the mappings can be changed at any time, and must be in the following format.
-@@ -75,8 +80,8 @@
+@@ -75,8 +75,8 @@
      //deobfProvided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
  
      // for more info...
@@ -49,7 +35,7 @@
  
  }
  
-@@ -84,13 +89,13 @@
+@@ -84,13 +84,13 @@
  repositories {
      maven {
          name = "thiakil"
@@ -70,7 +56,7 @@
      }
  }
  
-@@ -99,7 +104,11 @@
+@@ -99,7 +99,9 @@
      deobfCompile "CraftTweaker2:CraftTweaker2-API:4.1.9.6"
      deobfCompile "mezz.jei:jei_1.12.2:4.12.1.217"
      deobfCompile "slimeknights.mantle:Mantle:1.12-1.3.1.22"
@@ -78,8 +64,6 @@
 +    deobfCompile ("slimeknights:TConstruct:1.12-2.7.2.508")  {
 +        exclude group: 'mezz.jei', module: 'jei_1.12'
 +    }
-+    runtime "curse.maven:railcraft-51195:3853491"
-+    runtime name: "XU2-Patcher-api"
      deobfCompile "com.azanor.baubles:Baubles:1.12-1.5.2"
  }
  

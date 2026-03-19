@@ -115,11 +115,6 @@ tasks {
                 }
             }
 
-            // Removes random test file that for some reason is included in the source jar
-            src.resolve("1.10.2/src/main/resources/assets/test").delete()
-            // Remove the META-INF from the source, how the heck did it get here I have no idea.
-            src.resolve("META-INF").deleteRecursively()
-
             // Get the Minecraft/Forge Jars to the libs.
             // FG5 does not support anything older than the latest versions of MC 1.12.2,
             // requiring the wrapper project to use jars generated and downloaded by the old FG2 setup of XU2.
@@ -133,9 +128,9 @@ tasks {
                 .copyTo(libs.resolve("Forge-1.11.2.jar"))
             src.resolve("1.11/.gradle/minecraft/forgeSrc-1.11.2-13.20.1.2588-PROJECT(1.11)-sources.jar")
                 .copyTo(libs.resolve("Forge-1.11.2-Sources.jar"))
-            src.resolve("1.12/.gradle/minecraft/forgeSrc-1.12.2-14.23.5.2779-PROJECT(1.12).jar")
+            src.resolve("1.12/.gradle/minecraft/forgeSrc-1.12.2-14.23.5.2769-PROJECT(1.12).jar")
                 .copyTo(libs.resolve("Forge-1.12.2.jar"))
-            src.resolve("1.12/.gradle/minecraft/forgeSrc-1.12.2-14.23.5.2779-PROJECT(1.12)-sources.jar")
+            src.resolve("1.12/.gradle/minecraft/forgeSrc-1.12.2-14.23.5.2769-PROJECT(1.12)-sources.jar")
                 .copyTo(libs.resolve("Forge-1.12.2-Sources.jar"))
 
             // Get the libraries jars to the libs.

@@ -24,29 +24,7 @@
  archivesBaseName = "extrautils2-1.11.2"
  
  
-@@ -47,6 +47,11 @@
- }
- 
- minecraft {
-+    tasks {
-+        "runClient" {
-+            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
-+        }
-+    }
-     version = "1.11.2-13.20.1.2588"
-     runDir = "run"
-     mappings = "snapshot_20170624"
-@@ -56,12 +61,17 @@
- 
- 
- minecraft {
-+    tasks {
-+        "runClient" {
-+            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
-+        }
-+    }
-   useDepAts = true
- }
+@@ -61,7 +61,7 @@
  
  repositories {
      maven {
@@ -55,7 +33,7 @@
      }
  }
  
-@@ -71,7 +81,9 @@
+@@ -71,7 +71,9 @@
  }
  
  repositories {

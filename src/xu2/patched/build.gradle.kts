@@ -102,7 +102,7 @@ tasks {
     }
 
     // Source Jar Generation
-    register<Jar>("Source Jar ~ Full") {
+    register<Zip>("Source Jar ~ Full") {
         group = taskGroup
         description =
             "Used to package all versions of the mod into a single jar, for Patching the Patched Project. Should not be used to generate binary patches"
@@ -111,7 +111,8 @@ tasks {
         archiveBaseName.set("XU2-Project")
         from(src) {
             include("**")
-            exclude("**/gradle")
+            exclude("gradle")
+            exclude("**/.idea")
             exclude("**/.gradle")
             exclude("**/build")
             exclude("**/run")
@@ -162,7 +163,7 @@ tasks {
         group = taskGroup
 
         val baseSourceJar = XU2Base.tasks.getByName<Zip>("Source Jar ~ Full (Base)")
-        val sourceJar = getByName<Jar>("Source Jar ~ Full")
+        val sourceJar = getByName<Zip>("Source Jar ~ Full")
 
         dependsOn(baseSourceJar)
         dependsOn(sourceJar)

@@ -1,0 +1,51 @@
+--- a/1.11/build.gradle
++++ b/1.11/build.gradle
+@@ -47,6 +47,11 @@
+ }
+ 
+ minecraft {
++    tasks {
++        "runClient" {
++            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
++        }
++    }
+     version = "1.11.2-13.20.1.2588"
+     runDir = "run"
+     mappings = "snapshot_20170624"
+@@ -56,6 +61,11 @@
+ 
+ 
+ minecraft {
++    tasks {
++        "runClient" {
++            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
++        }
++    }
+   useDepAts = true
+ }
+ 
+@@ -63,6 +73,15 @@
+     maven {
+         url "https://dvs1.progwml6.com/files/maven"
+     }
++    flatDir {
++        dirs '../../../../../build/libs'
++    }
++    maven {
++        url "https://cursemaven.com"
++    }
++    maven {
++        url "https://maven.cil.li/"
++    }
+ }
+ 
+ 
+@@ -147,6 +166,8 @@
+     }
+     api{
+         java {
++            // XU2-Patcher
++            srcDir '../../../../main/api'
+             srcDir '../1.10.2/src/api/java'
+         }
+     }

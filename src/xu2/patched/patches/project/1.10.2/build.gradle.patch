@@ -1,0 +1,35 @@
+--- a/1.10.2/build.gradle
++++ b/1.10.2/build.gradle
+@@ -38,6 +38,11 @@
+ 
+ 
+ minecraft {
++    tasks {
++        "runClient" {
++            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
++        }
++    }
+     version = "1.10.2-12.18.3.2511"
+     runDir = "run"
+     mappings = "snapshot_20170624"
+@@ -51,6 +56,11 @@
+ }
+ 
+ minecraft {
++    tasks {
++        "runClient" {
++            jvmArgs "-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005", "-Dlog4j.configurationFile=\"log4j2.xml\""
++        }
++    }
+   useDepAts = true
+ }
+ 
+@@ -137,6 +147,8 @@
+     }
+     api{
+         java {
++            // XU2-Patcher
++            srcDir '../../../../main/api'
+             srcDir 'src/api/java'
+         }
+     }
